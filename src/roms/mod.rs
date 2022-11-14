@@ -44,7 +44,6 @@ pub fn test_rom1() -> Vec<u8> {
 
 #[allow(dead_code)]
 pub fn test_rom2() -> Vec<u8> {
-
     vec![
         0x69, 0x34, // ADC #&34
         0x65, 0x34, // ADC &34 (zp)
