@@ -1,9 +1,9 @@
-mod ROMs;
+mod roms;
 
-use ROMs::testROM1;
+use roms::test_rom1;
 
 fn main() {
-    for inst in testROM1() {
+    for inst in test_rom1() {
         println!("Decode: {:02x}", inst);
     }
 }
