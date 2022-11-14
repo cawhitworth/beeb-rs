@@ -61,4 +61,169 @@ mod tests {
     fn construct_from_image() {
         let _ = Rom::new(test_rom1(), 0);
     }
+
+    #[test]
+    fn read_bytes_in_range_succeeds() -> Result<()> {
+        let memory = Rom::new(vec![0;32], 0);
+
+        memory.read_byte(0)?;
+        memory.read_byte(1)?;
+
+        Ok(())
+    }
+    
+    #[test]
+    fn read_bytes_in_range_with_base_succeeds() -> Result<()> {
+        let memory = Rom::new(vec![0;32], 64);
+
+        memory.read_byte(64)?;
+        memory.read_byte(65)?;
+
+        Ok(())
+    }
+
+
+    #[test]
+    fn read_byte_out_of_range_fails() {
+        let memory = Rom::new(vec![0;32], 0);
+
+        let address: Address = 33;
+        let result = memory.read_byte(address);
+
+        assert_eq!(result, Err(Error::AddressOutOfRange(address)))
+    }
+
+    #[test]
+    fn read_byte_out_of_range_with_base_fails() {
+        let memory = Rom::new(vec![0;32], 10);
+
+        let address: Address = 0;
+        let result = memory.read_byte(address);
+
+        assert_eq!(result, Err(Error::AddressOutOfRange(address)))
+    }
+
+    #[test]
+    fn read_words_in_range_succeeds() -> Result<()> {
+        let memory = Rom::new(vec![0;32], 0);
+
+        memory.read_word(0)?;
+        memory.read_word(2)?;
+
+        Ok(())
+    }
+    
+    #[test]
+    fn read_words_in_range_with_base_succeeds() -> Result<()> {
+        let memory = Rom::new(vec![0;32], 64);
+
+        memory.read_word(64)?;
+        memory.read_word(66)?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn read_word_wrong_offset_fails() {
+        let memory = Rom::new(vec![0;32], 0);
+
+        let address: Address = 33;
+        let result = memory.read_word(address);
+
+        assert_eq!(result, Err(Error::InvalidAddress(address)))
+    }
+
+    #[test]
+    fn read_word_out_of_range_fails() {
+        let memory = Rom::new(vec![0;32], 0);
+
+        let address: Address = 34;
+        let result = memory.read_word(address);
+
+        assert_eq!(result, Err(Error::AddressOutOfRange(address)))
+    }
+
+    #[test]
+    fn read_word_out_of_range_with_base_fails() {
+        let memory = Rom::new(vec![0;32], 10);
+
+        let address: Address = 0;
+        let result = memory.read_word(address);
+
+        assert_eq!(result, Err(Error::AddressOutOfRange(address)))
+    }
+    
+    #[test]
+    fn write_bytes_in_range_succeeds() -> Result<()> {
+        let mut memory = Rom::new(vec![0;32], 0);
+
+        memory.write_byte(0, 0xde)?;
+        memory.write_byte(1, 0xad)?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn write_byte_out_of_range_succeeds() -> Result<()>{
+        let mut memory = Rom::new(vec![0;32], 0);
+
+        memory.write_byte(33, 0)?;
+        Ok(())
+    }
+
+    #[test]
+    fn write_words_in_range_succeeds() -> Result<()> {
+        let mut memory = Rom::new(vec![0;32], 0);
+
+        memory.write_word(0, 0xdead)?;
+        memory.write_word(2, 0xbeef)?;
+
+        Ok(())
+    }
+
+    #[test]
+    fn write_word_out_of_range_fails() -> Result<()> {
+        let mut memory = Rom::new(vec![0;32], 0);
+
+        memory.write_word(34, 0)?;
+        Ok(())
+    }
+
+    #[test]
+    fn write_read_byte_succeeds_memory_not_altered() -> Result<()> {
+
+        let address: Address = 0;
+        let init = 0x00;
+        let value = 0xde;
+
+        let mut memory = Rom::new(vec![init;32], 0);
+        memory.write_byte(address, value)?;
+
+        let result = memory.read_byte(address);
+        match result {
+            Ok(r) => assert_eq!(r, init),
+            Err(e) => return Err(e),
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn write_read_word_succeeds_memory_not_altered() -> Result<()> {
+        let address: Address = 0;
+        let init = 0x00;
+        let value = 0xde;
+
+        let mut memory = Rom::new(vec![init;32], 0);
+        
+        memory.write_word(address, value)?;
+
+        let result = memory.read_word(address);
+        match result {
+            Ok(r) => assert_eq!(r, init as u16),
+            Err(e) => return Err(e),
+        }
+
+        Ok(())
+    }
 }
