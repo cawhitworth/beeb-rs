@@ -64,8 +64,8 @@ where
 
         let result = self.execution_unit.execute(&instruction.opcode, data, address, &self.memory, &mut self.registers)?;
 
-        if let Some(data) = result {
-            self.writeback_unit.writeback(&instruction.writeback, data, address, &mut self.memory, &mut self.registers)?;
+        if result.is_some() {
+            self.writeback_unit.writeback(&instruction.writeback, result, address, &mut self.memory, &mut self.registers)?;
         }
 
         Ok(())

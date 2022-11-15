@@ -15,7 +15,7 @@ where M: Memory {
 
 impl<M> crate::cpu::ExecutionUnit<M> for ExecutionUnit<M>
 where M: Memory {
-    fn execute(&self, opcode: &Opcode, data: Data, address: Address, memory: &M, registers: &Registers) -> Result<Option<Data>> {
+    fn execute(&self, opcode: &Opcode, data: Option<Data>, address: Option<Address>, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         println!("{:?}", opcode);
         Ok(None)
     }

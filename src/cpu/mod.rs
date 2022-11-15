@@ -154,20 +154,20 @@ pub trait InstructionDecoder {
 
 pub trait AddressDispatcher<M>
 where M: Memory {
-    fn dispatch(&self, mode: &AddressingMode, memory: &M, registers: &Registers) -> Result<Address>;
+    fn dispatch(&self, mode: &AddressingMode, memory: &M, registers: &Registers) -> Result<Option<Address>>;
 }
 
 pub trait DataDispatcher<M>
 where M: Memory {
-    fn dispatch(&self, mode: &AddressingMode, memory: &M, registers: &Registers) -> Result<Data>;
+    fn dispatch(&self, mode: &AddressingMode, memory: &M, registers: &Registers) -> Result<Option<Data>>;
 }
 
 pub trait ExecutionUnit<M>
 where M: Memory {
-    fn execute(&self, opcode: &Opcode, data: Data, address: Address, memory: &M, registers: &Registers) -> Result<Option<Data>>;
+    fn execute(&self, opcode: &Opcode, data: Option<Data>, address: Option<Address>, memory: &M, registers: &Registers) -> Result<Option<Data>>;
 }
 
 pub trait WritebackUnit<M>
 where M: Memory {
-    fn writeback(&self, target: &Writeback, data: Data, address: Address, memory: &mut M, registers: &mut Registers) -> Result<()>;
+    fn writeback(&self, target: &Writeback, data: Option<Data>, address: Option<Address>, memory: &mut M, registers: &mut Registers) -> Result<()>;
 }

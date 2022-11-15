@@ -12,62 +12,62 @@ where M: Memory {
         DataDispatcher { phantom: PhantomData }
     }
 
-    fn implicit(&self, memory: &M, registers: &Registers) -> Result<Data> {
+    fn implicit(&self, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         todo!()
     }
 
-    fn accumulator(&self, memory: &M, registers: &Registers) -> Result<Data> {
+    fn accumulator(&self, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         todo!()
     }
 
-    fn immediate(&self, memory: &M, registers: &Registers) -> Result<Data> {
+    fn immediate(&self, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         todo!()
     }
 
-    fn zero_page(&self, memory: &M, registers: &Registers) -> Result<Data> {
+    fn zero_page(&self, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         todo!()
     }
 
-    fn zero_page_x(&self, memory: &M, registers: &Registers) -> Result<Data> {
+    fn zero_page_x(&self, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         todo!()
     }
 
-    fn zero_page_y(&self, memory: &M, registers: &Registers) -> Result<Data> {
+    fn zero_page_y(&self, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         todo!()
     }
 
-    fn relative(&self, memory: &M, registers: &Registers) -> Result<Data> {
+    fn relative(&self, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         todo!()
     }
 
-    fn absolute(&self, memory: &M, registers: &Registers) -> Result<Data> {
+    fn absolute(&self, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         todo!()
     }
 
-    fn absolute_x(&self, memory: &M, registers: &Registers) -> Result<Data> {
+    fn absolute_x(&self, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         todo!()
     }
 
-    fn absolute_y(&self, memory: &M, registers: &Registers) -> Result<Data> {
+    fn absolute_y(&self, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         todo!()
     }
 
-    fn indirect(&self, memory: &M, registers: &Registers) -> Result<Data> {
+    fn indirect(&self, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         todo!()
     }
 
-    fn indirect_x(&self, memory: &M, registers: &Registers) -> Result<Data> {
+    fn indirect_x(&self, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         todo!()
     }
 
-    fn indirect_y(&self, memory: &M, registers: &Registers) -> Result<Data> {
+    fn indirect_y(&self, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         todo!()
     }
 }
 
 impl<M> crate::cpu::DataDispatcher<M> for DataDispatcher<M>
 where M: Memory {
-    fn dispatch(&self, mode: &AddressingMode, memory: &M, registers: &Registers) -> Result<Data> {
+    fn dispatch(&self, mode: &AddressingMode, memory: &M, registers: &Registers) -> Result<Option<Data>> {
         match mode {
             AddressingMode::Implicit => self.implicit(memory, registers),
             AddressingMode::Accumulator => self.accumulator(memory, registers),
