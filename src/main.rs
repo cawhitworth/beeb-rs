@@ -1,9 +1,11 @@
 mod cpu;
 mod roms;
 
+use cpu::writeback::WritebackUnit;
 use cpu::address::AddressDispatcher;
 use cpu::data::DataDispatcher;
 use cpu::dispatch::Dispatcher;
+use cpu::execution::ExecutionUnit;
 use cpu::instruction_decode::InstructionDecoder;
 
 use cpu::ram::Ram;
@@ -21,6 +23,8 @@ fn main() -> cpu::Result<()> {
         InstructionDecoder::new(),
         AddressDispatcher::new(),
         DataDispatcher::new(),
+        ExecutionUnit::new(),
+        WritebackUnit::new()
     );
 
     cpu.dispatch()?;

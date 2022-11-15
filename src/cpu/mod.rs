@@ -1,3 +1,5 @@
+use self::registers::Registers;
+
 pub mod address;
 pub mod data;
 pub mod dispatch;
@@ -5,6 +7,8 @@ pub mod instruction_decode;
 pub mod ram;
 pub mod registers;
 pub mod rom;
+pub mod execution;
+pub mod writeback;
 
 pub type Byte = u8;
 pub type Word = u16;
@@ -148,34 +152,22 @@ pub trait InstructionDecoder {
     fn decode(&self, opcode: Byte) -> Result<&Instruction>;
 }
 
-pub trait AddressDispatcher {
-    fn implicit(&self) -> Result<Address>;
-    fn accumulator(&self) -> Result<Address>;
-    fn immediate(&self) -> Result<Address>;
-    fn zero_page(&self) -> Result<Address>;
-    fn zero_page_x(&self) -> Result<Address>;
-    fn zero_page_y(&self) -> Result<Address>;
-    fn relative(&self) -> Result<Address>;
-    fn absolute(&self) -> Result<Address>;
-    fn absolute_x(&self) -> Result<Address>;
-    fn absolute_y(&self) -> Result<Address>;
-    fn indirect(&self) -> Result<Address>;
-    fn indirect_x(&self) -> Result<Address>;
-    fn indirect_y(&self) -> Result<Address>;
+pub trait AddressDispatcher<M>
+where M: Memory {
+    fn dispatch(&self, mode: &AddressingMode, memory: &M, registers: &Registers) -> Result<Address>;
 }
 
-pub trait DataDispatcher {
-    fn implicit(&self) -> Result<Data>;
-    fn accumulator(&self) -> Result<Data>;
-    fn immediate(&self) -> Result<Data>;
-    fn zero_page(&self) -> Result<Data>;
-    fn zero_page_x(&self) -> Result<Data>;
-    fn zero_page_y(&self) -> Result<Data>;
-    fn relative(&self) -> Result<Data>;
-    fn absolute(&self) -> Result<Data>;
-    fn absolute_x(&self) -> Result<Data>;
-    fn absolute_y(&self) -> Result<Data>;
-    fn indirect(&self) -> Result<Data>;
-    fn indirect_x(&self) -> Result<Data>;
-    fn indirect_y(&self) -> Result<Data>;
+pub trait DataDispatcher<M>
+where M: Memory {
+    fn dispatch(&self, mode: &AddressingMode, memory: &M, registers: &Registers) -> Result<Data>;
+}
+
+pub trait ExecutionUnit<M>
+where M: Memory {
+    fn execute(&self, opcode: &Opcode, data: Data, address: Address, memory: &M, registers: &Registers) -> Result<Option<Data>>;
+}
+
+pub trait WritebackUnit<M>
+where M: Memory {
+    fn writeback(&self, target: &Writeback, data: Data, address: Address, memory: &mut M, registers: &mut Registers) -> Result<()>;
 }
