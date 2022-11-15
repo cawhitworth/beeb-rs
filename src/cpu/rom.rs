@@ -2,36 +2,34 @@ use crate::cpu::{Address, Byte, Error, Memory, Result, Word};
 
 pub struct Rom {
     memory: Vec<u8>,
-    base: Address,
 }
 
 impl Rom {
-    pub fn new(image: Vec<u8>, base: Address) -> Self {
+    pub fn new(image: Vec<u8>) -> Self {
         Rom {
             memory: image,
-            base,
         }
     }
 }
 
 impl Memory for Rom {
     fn read_byte(&self, address: Address) -> Result<Byte> {
-        if address < self.base || address > self.base + self.memory.len() as u16 {
+        if address > self.memory.len() as u16 {
             return Err(Error::AddressOutOfRange(address));
         }
 
-        Ok(self.memory[(address - self.base) as usize])
+        Ok(self.memory[address as usize])
     }
 
     fn read_word(&self, address: Address) -> Result<Word> {
         if address & 1 != 0 {
             return Err(Error::InvalidAddress(address));
         }
-        if address < self.base || address > self.base + self.memory.len() as u16 {
+        if address > self.memory.len() as u16 {
             return Err(Error::AddressOutOfRange(address));
         }
 
-        let base = (address - self.base) as usize;
+        let base = address as usize;
         let mut word = self.memory[base] as u16;
         word += (self.memory[base + 1] as u16) << 8;
         Ok(word)
@@ -54,17 +52,17 @@ mod tests {
 
     #[test]
     fn construct() {
-        let _ = Rom::new(vec![0; 32], 0);
+        let _ = Rom::new(vec![0; 32]);
     }
 
     #[test]
     fn construct_from_image() {
-        let _ = Rom::new(test_rom1(), 0);
+        let _ = Rom::new(test_rom1());
     }
 
     #[test]
     fn read_bytes_in_range_succeeds() -> Result<()> {
-        let memory = Rom::new(vec![0; 32], 0);
+        let memory = Rom::new(vec![0; 32]);
 
         memory.read_byte(0)?;
         memory.read_byte(1)?;
@@ -73,18 +71,8 @@ mod tests {
     }
 
     #[test]
-    fn read_bytes_in_range_with_base_succeeds() -> Result<()> {
-        let memory = Rom::new(vec![0; 32], 64);
-
-        memory.read_byte(64)?;
-        memory.read_byte(65)?;
-
-        Ok(())
-    }
-
-    #[test]
     fn read_byte_out_of_range_fails() {
-        let memory = Rom::new(vec![0; 32], 0);
+        let memory = Rom::new(vec![0; 32]);
 
         let address: Address = 33;
         let result = memory.read_byte(address);
@@ -93,18 +81,8 @@ mod tests {
     }
 
     #[test]
-    fn read_byte_out_of_range_with_base_fails() {
-        let memory = Rom::new(vec![0; 32], 10);
-
-        let address: Address = 0;
-        let result = memory.read_byte(address);
-
-        assert_eq!(result, Err(Error::AddressOutOfRange(address)))
-    }
-
-    #[test]
     fn read_words_in_range_succeeds() -> Result<()> {
-        let memory = Rom::new(vec![0; 32], 0);
+        let memory = Rom::new(vec![0; 32]);
 
         memory.read_word(0)?;
         memory.read_word(2)?;
@@ -113,20 +91,10 @@ mod tests {
     }
 
     #[test]
-    fn read_words_in_range_with_base_succeeds() -> Result<()> {
-        let memory = Rom::new(vec![0; 32], 64);
-
-        memory.read_word(64)?;
-        memory.read_word(66)?;
-
-        Ok(())
-    }
-
-    #[test]
     fn read_word_wrong_offset_fails() {
-        let memory = Rom::new(vec![0; 32], 0);
+        let memory = Rom::new(vec![0; 32]);
 
-        let address: Address = 33;
+        let address: Address = 1;
         let result = memory.read_word(address);
 
         assert_eq!(result, Err(Error::InvalidAddress(address)))
@@ -134,7 +102,7 @@ mod tests {
 
     #[test]
     fn read_word_out_of_range_fails() {
-        let memory = Rom::new(vec![0; 32], 0);
+        let memory = Rom::new(vec![0; 32]);
 
         let address: Address = 34;
         let result = memory.read_word(address);
@@ -143,18 +111,8 @@ mod tests {
     }
 
     #[test]
-    fn read_word_out_of_range_with_base_fails() {
-        let memory = Rom::new(vec![0; 32], 10);
-
-        let address: Address = 0;
-        let result = memory.read_word(address);
-
-        assert_eq!(result, Err(Error::AddressOutOfRange(address)))
-    }
-
-    #[test]
     fn write_bytes_in_range_succeeds() -> Result<()> {
-        let mut memory = Rom::new(vec![0; 32], 0);
+        let mut memory = Rom::new(vec![0; 32]);
 
         memory.write_byte(0, 0xde)?;
         memory.write_byte(1, 0xad)?;
@@ -164,7 +122,7 @@ mod tests {
 
     #[test]
     fn write_byte_out_of_range_succeeds() -> Result<()> {
-        let mut memory = Rom::new(vec![0; 32], 0);
+        let mut memory = Rom::new(vec![0; 32]);
 
         memory.write_byte(33, 0)?;
         Ok(())
@@ -172,7 +130,7 @@ mod tests {
 
     #[test]
     fn write_words_in_range_succeeds() -> Result<()> {
-        let mut memory = Rom::new(vec![0; 32], 0);
+        let mut memory = Rom::new(vec![0; 32]);
 
         memory.write_word(0, 0xdead)?;
         memory.write_word(2, 0xbeef)?;
@@ -182,7 +140,7 @@ mod tests {
 
     #[test]
     fn write_word_out_of_range_fails() -> Result<()> {
-        let mut memory = Rom::new(vec![0; 32], 0);
+        let mut memory = Rom::new(vec![0; 32]);
 
         memory.write_word(34, 0)?;
         Ok(())
@@ -194,7 +152,7 @@ mod tests {
         let init = 0x00;
         let value = 0xde;
 
-        let mut memory = Rom::new(vec![init; 32], 0);
+        let mut memory = Rom::new(vec![init; 32]);
         memory.write_byte(address, value)?;
 
         let result = memory.read_byte(address);
@@ -212,7 +170,7 @@ mod tests {
         let init = 0x00;
         let value = 0xde;
 
-        let mut memory = Rom::new(vec![init; 32], 0);
+        let mut memory = Rom::new(vec![init; 32]);
 
         memory.write_word(address, value)?;
 
@@ -227,7 +185,7 @@ mod tests {
 
     #[test]
     fn check_endiannness_correct() -> Result<()> {
-        let memory = Rom::new(vec![0xad, 0xde], 0);
+        let memory = Rom::new(vec![0xad, 0xde]);
         
         match memory.read_word(0) {
             Ok(r) => assert_eq!(r, 0xdead),
