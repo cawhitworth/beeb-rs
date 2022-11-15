@@ -1,4 +1,4 @@
-use super::{AddressingMode, Byte, Instruction, Opcode, Result, Writeback};
+use crate::cpu::{AddressingMode, Byte, Instruction, Opcode, Result, Writeback};
 
 pub struct InstructionDecoder {
     decode_table: [Instruction; 256],

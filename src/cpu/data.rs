@@ -1,4 +1,4 @@
-use super::{Data, Result};
+use crate::cpu::{Data, Result};
 
 pub struct DataDispatcher {}
 
