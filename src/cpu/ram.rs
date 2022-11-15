@@ -34,8 +34,8 @@ impl Memory for Ram {
             return Err(Error::AddressOutOfRange(address));
         }
 
-        let mut word: u16 = (self.memory[uaddr] as u16) << 8;
-        word += self.memory[uaddr + 1] as u16;
+        let mut word: u16 = self.memory[uaddr] as u16;
+        word += (self.memory[uaddr + 1] as u16) << 8;
 
         Ok(word)
     }
@@ -60,8 +60,8 @@ impl Memory for Ram {
             return Err(Error::AddressOutOfRange(address));
         }
 
-        self.memory[uaddr] = (data >> 8) as u8;
-        self.memory[uaddr + 1] = (data & 0xff) as u8;
+        self.memory[uaddr] = (data & 0xff) as u8;
+        self.memory[uaddr + 1] = (data >> 8) as u8;
 
         Ok(())
     }
@@ -181,6 +181,31 @@ mod tests {
         match result {
             Ok(r) => assert_eq!(r, value),
             Err(e) => return Err(e),
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn endianness_is_correct() -> Result<()> {
+        let mut memory = Ram::new(16);
+
+        memory.write_byte(0, 0xad)?;
+        memory.write_byte(1, 0xde)?;
+        match memory.read_word(0) {
+            Ok(r) => assert_eq!(r, 0xdead),
+            Err(e) => return Err(e)
+        }
+
+        memory.write_word(0, 0xbeef)?;
+        match memory.read_byte(0) {
+            Ok(r) => assert_eq!(r, 0xef),
+            Err(e) => return Err(e)
+        }
+        
+        match memory.read_byte(1) {
+            Ok(r) => assert_eq!(r, 0xbe),
+            Err(e) => return Err(e)
         }
 
         Ok(())

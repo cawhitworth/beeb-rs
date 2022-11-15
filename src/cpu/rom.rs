@@ -224,4 +224,15 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn check_endiannness_correct() -> Result<()> {
+        let memory = Rom::new(vec![0xad, 0xde], 0);
+        
+        match memory.read_word(0) {
+            Ok(r) => assert_eq!(r, 0xdead),
+            Err(e) => return Err(e),
+        }
+        Ok(())
+    }
 }
