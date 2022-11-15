@@ -53,15 +53,19 @@ where
     }
 
     fn absolute(&self, memory: &M, registers: &Registers) -> Result<Option<Address>> {
-        todo!()
+        let address = memory.read_word(registers.pc + 1)?;
+
+        Ok(Some(address))
     }
 
     fn absolute_x(&self, memory: &M, registers: &Registers) -> Result<Option<Address>> {
-        todo!()
+        let address = memory.read_word(registers.pc + 1)?;
+        Ok(Some(address + registers.x as u16))
     }
 
     fn absolute_y(&self, memory: &M, registers: &Registers) -> Result<Option<Address>> {
-        todo!()
+        let address = memory.read_word(registers.pc + 1)?;
+        Ok(Some(address + registers.y as u16))
     }
 
     fn indirect(&self, memory: &M, registers: &Registers) -> Result<Option<Address>> {
@@ -116,9 +120,12 @@ mod tests {
         let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
         let mut _m = Ram::new(65536);
         let mut r = Registers::new();
+
         r.pc = 0x10;
+
         let address = address_dispatcher.immediate(&_m, &r)?;
         assert_eq!(address, Some(0x11));
+        
         Ok(())
     }
 
@@ -127,11 +134,14 @@ mod tests {
         let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
+
         let expected_address = 0x7f;
         r.pc = 0x10;
         m.write_byte(r.pc + 1, expected_address)?;
+        
         let address = address_dispatcher.zero_page(&m, &r)?;
         assert_eq!(address, Some(expected_address as u16));
+        
         Ok(())
     }
 
@@ -140,11 +150,14 @@ mod tests {
         let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
+
         r.pc = 0x10;
         r.x = 0x80;
         m.write_byte(r.pc + 1, 0x81)?;
+        
         let address = address_dispatcher.zero_page_x(&m, &r)?;
         assert_eq!(address, Some(0x0001 as u16));
+        
         Ok(())
     }
 
@@ -153,11 +166,14 @@ mod tests {
         let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
+
         r.pc = 0x10;
         r.y = 0x80;
         m.write_byte(r.pc + 1, 0x81)?;
+        
         let address = address_dispatcher.zero_page_y(&m, &r)?;
         assert_eq!(address, Some(0x0001 as u16));
+        
         Ok(())
     }
 
@@ -166,11 +182,59 @@ mod tests {
         let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
+
         r.pc = 0x00;
         m.write_byte(0x01, 0x10)?;
 
         let address = address_dispatcher.relative(&m, &r)?;
         assert_eq!(address, Some(0x10));
+
+        Ok(())
+    }
+
+    #[test]
+    fn absolute() -> Result<()> {
+        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.pc = 0x00;
+        m.write_word(0x01, 0x01234)?;
+        
+        let address = address_dispatcher.absolute(&m, &r)?;
+        assert_eq!(address, Some(0x1234));
+
+        Ok(())
+    }
+
+    #[test]
+    fn absolute_x() -> Result<()> {
+        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.pc = 0x00;
+        r.x = 0x10;
+        m.write_word(0x01, 0x01234)?;
+
+        let address = address_dispatcher.absolute_x(&m, &r)?;
+        assert_eq!(address, Some(0x1244));
+
+        Ok(())
+    }
+
+    #[test]
+    fn absolute_y() -> Result<()> {
+        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.pc = 0x00;
+        r.y = 0x10;
+        m.write_word(0x01, 0x01234)?;
+
+        let address = address_dispatcher.absolute_y(&m, &r)?;
+        assert_eq!(address, Some(0x1244));
 
         Ok(())
     }

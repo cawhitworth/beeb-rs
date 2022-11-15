@@ -26,9 +26,6 @@ impl Memory for Ram {
 
     fn read_word(&self, address: Address) -> Result<Word> {
         let uaddr = address as usize;
-        if uaddr & 1 != 0 {
-            return Err(Error::InvalidAddress(address));
-        }
 
         if uaddr >= self.memory.len() {
             return Err(Error::AddressOutOfRange(address));
@@ -52,9 +49,6 @@ impl Memory for Ram {
 
     fn write_word(&mut self, address: Address, data: Word) -> Result<()> {
         let uaddr = address as usize;
-        if uaddr & 1 != 0 {
-            return Err(Error::InvalidAddress(address));
-        }
 
         if uaddr >= self.memory.len() {
             return Err(Error::AddressOutOfRange(address));

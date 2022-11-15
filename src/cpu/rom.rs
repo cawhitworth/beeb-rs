@@ -20,9 +20,6 @@ impl Memory for Rom {
     }
 
     fn read_word(&self, address: Address) -> Result<Word> {
-        if address & 1 != 0 {
-            return Err(Error::InvalidAddress(address));
-        }
         if address > self.memory.len() as u16 {
             return Err(Error::AddressOutOfRange(address));
         }
@@ -86,16 +83,6 @@ mod tests {
         memory.read_word(2)?;
 
         Ok(())
-    }
-
-    #[test]
-    fn read_word_wrong_offset_fails() {
-        let memory = Rom::new(vec![0; 32]);
-
-        let address: Address = 1;
-        let result = memory.read_word(address);
-
-        assert_eq!(result, Err(Error::InvalidAddress(address)))
     }
 
     #[test]
