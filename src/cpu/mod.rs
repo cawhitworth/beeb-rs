@@ -1,9 +1,9 @@
 pub mod address;
+pub mod data;
+pub mod instruction_decode;
 pub mod ram;
 pub mod registers;
 pub mod rom;
-pub mod instruction_decode;
-pub mod data;
 
 pub type Byte = u8;
 pub type Word = u16;
@@ -14,6 +14,7 @@ pub type Data = Byte;
 pub enum Error {
     AddressOutOfRange(Address),
     InvalidAddress(Address),
+    InvalidAddressingMode,
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -26,64 +27,65 @@ pub trait Memory {
     fn write_word(&mut self, address: Address, data: Word) -> Result<()>;
 }
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug)]
 pub enum Opcode {
-ADC,
-AND,
-ASL,
-BCC,
-BCS,
-BEQ,
-BIT,
-BMI,
-BNE,
-BPL,
-BRK,
-BVC,
-BVS,
-CLC,
-CLD,
-CLI,
-CLV,
-CMP,
-CPX,
-CPY,
-DEC,
-DEX,
-DEY,
-EOR,
-INC,
-INX,
-INY,
-JMP,
-JSR,
-LDA,
-LDX,
-LDY,
-LSR,
-NOP,
-ORA,
-PHA,
-PHP,
-PLA,
-PLP,
-ROL,
-ROR,
-RTI,
-RTS,
-SBC,
-SEC,
-SED,
-SEI,
-STA,
-STX,
-STY,
-TAX,
-TAY,
-TSX,
-TXA,
-TXS,
-TYA,
+    ADC,
+    AND,
+    ASL,
+    BCC,
+    BCS,
+    BEQ,
+    BIT,
+    BMI,
+    BNE,
+    BPL,
+    BRK,
+    BVC,
+    BVS,
+    CLC,
+    CLD,
+    CLI,
+    CLV,
+    CMP,
+    CPX,
+    CPY,
+    DEC,
+    DEX,
+    DEY,
+    EOR,
+    INC,
+    INX,
+    INY,
+    JMP,
+    JSR,
+    LDA,
+    LDX,
+    LDY,
+    LSR,
+    NOP,
+    ORA,
+    PHA,
+    PHP,
+    PLA,
+    PLP,
+    ROL,
+    ROR,
+    RTI,
+    RTS,
+    SBC,
+    SEC,
+    SED,
+    SEI,
+    STA,
+    STX,
+    STY,
+    TAX,
+    TAY,
+    TSX,
+    TXA,
+    TXS,
+    TYA,
     Invalid = -1,
 }
 
@@ -124,8 +126,20 @@ pub struct Instruction {
 }
 
 impl Instruction {
-    pub fn new(opcode: Opcode, addressing_mode: AddressingMode, writeback: Writeback, byte_length: usize, ticks: usize) -> Self {
-        Instruction { opcode, addressing_mode, writeback, byte_length, ticks }
+    pub fn new(
+        opcode: Opcode,
+        addressing_mode: AddressingMode,
+        writeback: Writeback,
+        byte_length: usize,
+        ticks: usize,
+    ) -> Self {
+        Instruction {
+            opcode,
+            addressing_mode,
+            writeback,
+            byte_length,
+            ticks,
+        }
     }
 }
 

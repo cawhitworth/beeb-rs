@@ -1,65 +1,63 @@
-use std::ops::Add;
+use super::{Address, Result};
 
-pub struct AddressDispatcher {
-
-}
+pub struct AddressDispatcher {}
 
 impl AddressDispatcher {
     pub fn new() -> Self {
-        AddressDispatcher {  }
+        AddressDispatcher {}
     }
 }
 
 impl super::AddressDispatcher for AddressDispatcher {
-    fn implicit(&self) -> super::Result<super::Address> {
+    fn implicit(&self) -> Result<Address> {
         todo!()
     }
 
-    fn accumulator(&self) -> super::Result<super::Address> {
+    fn accumulator(&self) -> Result<Address> {
         todo!()
     }
 
-    fn immediate(&self) -> super::Result<super::Address> {
+    fn immediate(&self) -> Result<Address> {
         todo!()
     }
 
-    fn zero_page(&self) -> super::Result<super::Address> {
+    fn zero_page(&self) -> Result<Address> {
         todo!()
     }
 
-    fn zero_page_x(&self) -> super::Result<super::Address> {
+    fn zero_page_x(&self) -> Result<Address> {
         todo!()
     }
 
-    fn zero_page_y(&self) -> super::Result<super::Address> {
+    fn zero_page_y(&self) -> Result<Address> {
         todo!()
     }
 
-    fn relative(&self) -> super::Result<super::Address> {
+    fn relative(&self) -> Result<Address> {
         todo!()
     }
 
-    fn absolute(&self) -> super::Result<super::Address> {
+    fn absolute(&self) -> Result<Address> {
         todo!()
     }
 
-    fn absolute_x(&self) -> super::Result<super::Address> {
+    fn absolute_x(&self) -> Result<Address> {
         todo!()
     }
 
-    fn absolute_y(&self) -> super::Result<super::Address> {
+    fn absolute_y(&self) -> Result<Address> {
         todo!()
     }
 
-    fn indirect(&self) -> super::Result<super::Address> {
+    fn indirect(&self) -> Result<Address> {
         todo!()
     }
 
-    fn indirect_x(&self) -> super::Result<super::Address> {
+    fn indirect_x(&self) -> Result<Address> {
         todo!()
     }
 
-    fn indirect_y(&self) -> super::Result<super::Address> {
+    fn indirect_y(&self) -> Result<Address> {
         todo!()
     }
 }

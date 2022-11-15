@@ -8,7 +8,7 @@ pub struct Registers {
     pub a: Data,
     pub x: Data,
     pub y: Data,
-    
+
     pc_next: Address,
     ps: Data,
 }

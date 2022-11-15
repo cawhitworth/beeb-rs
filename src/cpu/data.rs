@@ -1,65 +1,63 @@
-use super::Data;
+use super::{Data, Result};
 
-pub struct DataDispatcher {
-
-}
+pub struct DataDispatcher {}
 
 impl DataDispatcher {
     pub fn new() -> Self {
-        DataDispatcher {  }
+        DataDispatcher {}
     }
 }
 
 impl super::DataDispatcher for DataDispatcher {
-    fn implicit(&self) -> super::Result<super::Data> {
+    fn implicit(&self) -> Result<Data> {
         todo!()
     }
 
-    fn accumulator(&self) -> super::Result<super::Data> {
+    fn accumulator(&self) -> Result<Data> {
         todo!()
     }
 
-    fn immediate(&self) -> super::Result<super::Data> {
+    fn immediate(&self) -> Result<Data> {
         todo!()
     }
 
-    fn zero_page(&self) -> super::Result<super::Data> {
+    fn zero_page(&self) -> Result<Data> {
         todo!()
     }
 
-    fn zero_page_x(&self) -> super::Result<super::Data> {
+    fn zero_page_x(&self) -> Result<Data> {
         todo!()
     }
 
-    fn zero_page_y(&self) -> super::Result<super::Data> {
+    fn zero_page_y(&self) -> Result<Data> {
         todo!()
     }
 
-    fn relative(&self) -> super::Result<super::Data> {
+    fn relative(&self) -> Result<Data> {
         todo!()
     }
 
-    fn absolute(&self) -> super::Result<super::Data> {
+    fn absolute(&self) -> Result<Data> {
         todo!()
     }
 
-    fn absolute_x(&self) -> super::Result<super::Data> {
+    fn absolute_x(&self) -> Result<Data> {
         todo!()
     }
 
-    fn absolute_y(&self) -> super::Result<super::Data> {
+    fn absolute_y(&self) -> Result<Data> {
         todo!()
     }
 
-    fn indirect(&self) -> super::Result<super::Data> {
+    fn indirect(&self) -> Result<Data> {
         todo!()
     }
 
-    fn indirect_x(&self) -> super::Result<super::Data> {
+    fn indirect_x(&self) -> Result<Data> {
         todo!()
     }
 
-    fn indirect_y(&self) -> super::Result<super::Data> {
+    fn indirect_y(&self) -> Result<Data> {
         todo!()
     }
 }
