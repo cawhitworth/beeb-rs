@@ -15,7 +15,7 @@ where
     A: AddressDispatcher<M>,
     D: DataDispatcher<M>,
     E: ExecutionUnit<M>,
-    W: WritebackUnit<M>
+    W: WritebackUnit<M>,
 {
     instruction_decoder: I,
     address_dispatcher: A,
@@ -23,7 +23,7 @@ where
     memory: M,
     registers: Registers,
     execution_unit: E,
-    writeback_unit: W
+    writeback_unit: W,
 }
 
 impl<I, A, D, M, E, W> Dispatcher<I, A, D, M, E, W>
@@ -33,7 +33,7 @@ where
     A: AddressDispatcher<M>,
     D: DataDispatcher<M>,
     E: ExecutionUnit<M>,
-    W: WritebackUnit<M>
+    W: WritebackUnit<M>,
 {
     pub fn new(
         registers: Registers,
@@ -42,7 +42,7 @@ where
         address_dispatcher: A,
         data_dispatcher: D,
         execution_unit: E,
-        writeback_unit: W
+        writeback_unit: W,
     ) -> Self {
         Dispatcher {
             instruction_decoder,
@@ -51,7 +51,7 @@ where
             memory,
             registers,
             execution_unit,
-            writeback_unit
+            writeback_unit,
         }
     }
 
@@ -59,13 +59,33 @@ where
         let opcode = self.memory.read_byte(self.registers.pc)?;
         let instruction = self.instruction_decoder.decode(opcode)?;
 
-        let address = self.address_dispatcher.dispatch(&instruction.addressing_mode, &self.memory, &self.registers)?;
-        let data = self.data_dispatcher.dispatch(&instruction.addressing_mode, &self.memory, &self.registers)?;
+        let address = self.address_dispatcher.dispatch(
+            &instruction.addressing_mode,
+            &self.memory,
+            &self.registers,
+        )?;
+        let data = self.data_dispatcher.dispatch(
+            &instruction.addressing_mode,
+            &self.memory,
+            &self.registers,
+        )?;
 
-        let result = self.execution_unit.execute(&instruction.opcode, data, address, &self.memory, &mut self.registers)?;
+        let result = self.execution_unit.execute(
+            &instruction.opcode,
+            data,
+            address,
+            &self.memory,
+            &mut self.registers,
+        )?;
 
         if result.is_some() {
-            self.writeback_unit.writeback(&instruction.writeback, result, address, &mut self.memory, &mut self.registers)?;
+            self.writeback_unit.writeback(
+                &instruction.writeback,
+                result,
+                address,
+                &mut self.memory,
+                &mut self.registers,
+            )?;
         }
 
         Ok(())

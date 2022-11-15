@@ -6,9 +6,7 @@ pub struct Rom {
 
 impl Rom {
     pub fn new(image: Vec<u8>) -> Self {
-        Rom {
-            memory: image,
-        }
+        Rom { memory: image }
     }
 }
 
@@ -186,7 +184,7 @@ mod tests {
     #[test]
     fn check_endiannness_correct() -> Result<()> {
         let memory = Rom::new(vec![0xad, 0xde]);
-        
+
         match memory.read_word(0) {
             Ok(r) => assert_eq!(r, 0xdead),
             Err(e) => return Err(e),

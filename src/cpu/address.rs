@@ -1,15 +1,19 @@
 use std::{marker::PhantomData, mem};
 
-use crate::cpu::{Address, Result, AddressingMode, Memory, Registers, Error};
+use crate::cpu::{Address, AddressingMode, Error, Memory, Registers, Result};
 
 pub struct AddressDispatcher<M> {
-    phantom: PhantomData<M>
+    phantom: PhantomData<M>,
 }
 
 impl<M> AddressDispatcher<M>
-where M: Memory {
+where
+    M: Memory,
+{
     pub fn new() -> Self {
-        AddressDispatcher { phantom: PhantomData }
+        AddressDispatcher {
+            phantom: PhantomData,
+        }
     }
 
     fn implicit(&self, _memory: &M, _registers: &Registers) -> Result<Option<Address>> {
@@ -43,7 +47,7 @@ where M: Memory {
 
     fn relative(&self, memory: &M, registers: &Registers) -> Result<Option<Address>> {
         let offset = memory.read_byte(registers.pc + 1)? as u16;
-        let address= (registers.pc).wrapping_add(offset);
+        let address = (registers.pc).wrapping_add(offset);
 
         Ok(Some(address))
     }
@@ -74,8 +78,15 @@ where M: Memory {
 }
 
 impl<M> crate::cpu::AddressDispatcher<M> for AddressDispatcher<M>
-where M: Memory {
-    fn dispatch(&self, mode: &AddressingMode, memory: &M, registers: &Registers) -> Result<Option<Address>> {
+where
+    M: Memory,
+{
+    fn dispatch(
+        &self,
+        mode: &AddressingMode,
+        memory: &M,
+        registers: &Registers,
+    ) -> Result<Option<Address>> {
         match mode {
             AddressingMode::Implicit => self.implicit(memory, registers),
             AddressingMode::Accumulator => self.accumulator(memory, registers),
@@ -96,7 +107,7 @@ where M: Memory {
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::*;
     use crate::cpu::ram::Ram;
 
@@ -106,7 +117,7 @@ mod tests{
         let mut _m = Ram::new(65536);
         let mut r = Registers::new();
         r.pc = 0x10;
-        let address = address_dispatcher.immediate(&_m,&r)?;
+        let address = address_dispatcher.immediate(&_m, &r)?;
         assert_eq!(address, Some(0x11));
         Ok(())
     }
@@ -119,7 +130,7 @@ mod tests{
         let expected_address = 0x7f;
         r.pc = 0x10;
         m.write_byte(r.pc + 1, expected_address)?;
-        let address = address_dispatcher.zero_page(&m,&r)?;
+        let address = address_dispatcher.zero_page(&m, &r)?;
         assert_eq!(address, Some(expected_address as u16));
         Ok(())
     }
@@ -132,7 +143,7 @@ mod tests{
         r.pc = 0x10;
         r.x = 0x80;
         m.write_byte(r.pc + 1, 0x81)?;
-        let address = address_dispatcher.zero_page_x(&m,&r)?;
+        let address = address_dispatcher.zero_page_x(&m, &r)?;
         assert_eq!(address, Some(0x0001 as u16));
         Ok(())
     }
@@ -145,7 +156,7 @@ mod tests{
         r.pc = 0x10;
         r.y = 0x80;
         m.write_byte(r.pc + 1, 0x81)?;
-        let address = address_dispatcher.zero_page_y(&m,&r)?;
+        let address = address_dispatcher.zero_page_y(&m, &r)?;
         assert_eq!(address, Some(0x0001 as u16));
         Ok(())
     }
@@ -155,7 +166,7 @@ mod tests{
         let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
-        r.pc = 0x00;        
+        r.pc = 0x00;
         m.write_byte(0x01, 0x10)?;
 
         let address = address_dispatcher.relative(&m, &r)?;

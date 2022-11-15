@@ -3,11 +3,11 @@ use self::registers::Registers;
 pub mod address;
 pub mod data;
 pub mod dispatch;
+pub mod execution;
 pub mod instruction_decode;
 pub mod ram;
 pub mod registers;
 pub mod rom;
-pub mod execution;
 pub mod writeback;
 
 pub type Byte = u8;
@@ -153,21 +153,53 @@ pub trait InstructionDecoder {
 }
 
 pub trait AddressDispatcher<M>
-where M: Memory {
-    fn dispatch(&self, mode: &AddressingMode, memory: &M, registers: &Registers) -> Result<Option<Address>>;
+where
+    M: Memory,
+{
+    fn dispatch(
+        &self,
+        mode: &AddressingMode,
+        memory: &M,
+        registers: &Registers,
+    ) -> Result<Option<Address>>;
 }
 
 pub trait DataDispatcher<M>
-where M: Memory {
-    fn dispatch(&self, mode: &AddressingMode, memory: &M, registers: &Registers) -> Result<Option<Data>>;
+where
+    M: Memory,
+{
+    fn dispatch(
+        &self,
+        mode: &AddressingMode,
+        memory: &M,
+        registers: &Registers,
+    ) -> Result<Option<Data>>;
 }
 
 pub trait ExecutionUnit<M>
-where M: Memory {
-    fn execute(&self, opcode: &Opcode, data: Option<Data>, address: Option<Address>, memory: &M, registers: &Registers) -> Result<Option<Data>>;
+where
+    M: Memory,
+{
+    fn execute(
+        &self,
+        opcode: &Opcode,
+        data: Option<Data>,
+        address: Option<Address>,
+        memory: &M,
+        registers: &Registers,
+    ) -> Result<Option<Data>>;
 }
 
 pub trait WritebackUnit<M>
-where M: Memory {
-    fn writeback(&self, target: &Writeback, data: Option<Data>, address: Option<Address>, memory: &mut M, registers: &mut Registers) -> Result<()>;
+where
+    M: Memory,
+{
+    fn writeback(
+        &self,
+        target: &Writeback,
+        data: Option<Data>,
+        address: Option<Address>,
+        memory: &mut M,
+        registers: &mut Registers,
+    ) -> Result<()>;
 }

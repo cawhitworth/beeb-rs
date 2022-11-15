@@ -194,18 +194,18 @@ mod tests {
         memory.write_byte(1, 0xde)?;
         match memory.read_word(0) {
             Ok(r) => assert_eq!(r, 0xdead),
-            Err(e) => return Err(e)
+            Err(e) => return Err(e),
         }
 
         memory.write_word(0, 0xbeef)?;
         match memory.read_byte(0) {
             Ok(r) => assert_eq!(r, 0xef),
-            Err(e) => return Err(e)
+            Err(e) => return Err(e),
         }
-        
+
         match memory.read_byte(1) {
             Ok(r) => assert_eq!(r, 0xbe),
-            Err(e) => return Err(e)
+            Err(e) => return Err(e),
         }
 
         Ok(())

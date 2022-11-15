@@ -1,15 +1,19 @@
 use std::marker::PhantomData;
 
-use crate::cpu::{Data, Result, AddressingMode, Memory, Registers, Error};
+use crate::cpu::{AddressingMode, Data, Error, Memory, Registers, Result};
 
 pub struct DataDispatcher<M> {
-    phantom: PhantomData<M>
+    phantom: PhantomData<M>,
 }
 
 impl<M> DataDispatcher<M>
-where M: Memory {
+where
+    M: Memory,
+{
     pub fn new() -> Self {
-        DataDispatcher { phantom: PhantomData }
+        DataDispatcher {
+            phantom: PhantomData,
+        }
     }
 
     fn implicit(&self, memory: &M, registers: &Registers) -> Result<Option<Data>> {
@@ -66,8 +70,15 @@ where M: Memory {
 }
 
 impl<M> crate::cpu::DataDispatcher<M> for DataDispatcher<M>
-where M: Memory {
-    fn dispatch(&self, mode: &AddressingMode, memory: &M, registers: &Registers) -> Result<Option<Data>> {
+where
+    M: Memory,
+{
+    fn dispatch(
+        &self,
+        mode: &AddressingMode,
+        memory: &M,
+        registers: &Registers,
+    ) -> Result<Option<Data>> {
         match mode {
             AddressingMode::Implicit => self.implicit(memory, registers),
             AddressingMode::Accumulator => self.accumulator(memory, registers),

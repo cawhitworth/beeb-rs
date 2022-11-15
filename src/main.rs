@@ -1,13 +1,13 @@
 mod cpu;
-mod roms;
 mod disassembler;
+mod roms;
 
-use cpu::writeback::WritebackUnit;
 use cpu::address::AddressDispatcher;
 use cpu::data::DataDispatcher;
 use cpu::dispatch::Dispatcher;
-use disassembler::execution::ExecutionUnit;
 use cpu::instruction_decode::InstructionDecoder;
+use cpu::writeback::WritebackUnit;
+use disassembler::execution::ExecutionUnit;
 
 use cpu::ram::Ram;
 
@@ -25,7 +25,7 @@ fn main() -> cpu::Result<()> {
         AddressDispatcher::new(),
         DataDispatcher::new(),
         ExecutionUnit::new(),
-        WritebackUnit::new()
+        WritebackUnit::new(),
     );
 
     cpu.dispatch()?;
