@@ -1,4 +1,4 @@
-use super::{Address, Byte, Error, Memory, Result, Word};
+use crate::cpu::{Address, Byte, Error, Memory, Result, Word};
 
 pub struct Rom {
     memory: Vec<u8>,

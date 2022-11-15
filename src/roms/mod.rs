@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 pub fn test_rom1() -> Vec<u8> {
     vec![
         0xad, 0x00, 0xff, // LDA &FF00    (a=0xad)

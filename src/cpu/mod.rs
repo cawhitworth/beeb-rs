@@ -1,5 +1,6 @@
 pub mod address;
 pub mod data;
+pub mod dispatch;
 pub mod instruction_decode;
 pub mod ram;
 pub mod registers;

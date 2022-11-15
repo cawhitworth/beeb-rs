@@ -1,6 +1,6 @@
 use std::fmt;
 
-use super::{Address, Data};
+use crate::cpu::{Address, Data};
 
 pub struct Registers {
     pub pc: Address,

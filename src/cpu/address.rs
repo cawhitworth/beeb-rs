@@ -1,4 +1,4 @@
-use super::{Address, Result};
+use crate::cpu::{Address, Result};
 
 pub struct AddressDispatcher {}
 

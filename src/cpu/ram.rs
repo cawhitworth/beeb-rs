@@ -1,7 +1,7 @@
-use super::{Error, Memory};
+use crate::cpu::{Error, Memory};
 
-use super::Result;
-use super::{Address, Byte, Word};
+use crate::cpu::Result;
+use crate::cpu::{Address, Byte, Word};
 
 pub struct Ram {
     memory: Vec<u8>,
