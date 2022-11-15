@@ -1,4 +1,4 @@
-use std::{marker::PhantomData, mem};
+use std::marker::PhantomData;
 
 use crate::cpu::{Address, AddressingMode, Error, Memory, Registers, Result};
 
@@ -133,7 +133,7 @@ mod tests {
 
         let address = address_dispatcher.immediate(&_m, &r)?;
         assert_eq!(address, Some(0x11));
-        
+
         Ok(())
     }
 
@@ -146,10 +146,10 @@ mod tests {
         let expected_address = 0x7f;
         r.pc = 0x10;
         m.write_byte(r.pc + 1, expected_address)?;
-        
+
         let address = address_dispatcher.zero_page(&m, &r)?;
         assert_eq!(address, Some(expected_address as u16));
-        
+
         Ok(())
     }
 
@@ -162,10 +162,10 @@ mod tests {
         r.pc = 0x10;
         r.x = 0x80;
         m.write_byte(r.pc + 1, 0x81)?;
-        
+
         let address = address_dispatcher.zero_page_x(&m, &r)?;
         assert_eq!(address, Some(0x0001 as u16));
-        
+
         Ok(())
     }
 
@@ -178,10 +178,10 @@ mod tests {
         r.pc = 0x10;
         r.y = 0x80;
         m.write_byte(r.pc + 1, 0x81)?;
-        
+
         let address = address_dispatcher.zero_page_y(&m, &r)?;
         assert_eq!(address, Some(0x0001 as u16));
-        
+
         Ok(())
     }
 
@@ -208,7 +208,7 @@ mod tests {
 
         r.pc = 0x00;
         m.write_word(0x01, 0x01234)?;
-        
+
         let address = address_dispatcher.absolute(&m, &r)?;
         assert_eq!(address, Some(0x1234));
 
