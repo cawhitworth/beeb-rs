@@ -1,11 +1,12 @@
 mod cpu;
 mod roms;
+mod disassembler;
 
 use cpu::writeback::WritebackUnit;
 use cpu::address::AddressDispatcher;
 use cpu::data::DataDispatcher;
 use cpu::dispatch::Dispatcher;
-use cpu::execution::ExecutionUnit;
+use disassembler::execution::ExecutionUnit;
 use cpu::instruction_decode::InstructionDecoder;
 
 use cpu::ram::Ram;
