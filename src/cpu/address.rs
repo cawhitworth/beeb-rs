@@ -69,15 +69,23 @@ where
     }
 
     fn indirect(&self, memory: &M, registers: &Registers) -> Result<Option<Address>> {
-        todo!()
+        let indir_address = memory.read_word(registers.pc + 1)?;
+        let address = memory.read_word(indir_address as Address)?;
+        Ok(Some(address))
     }
 
     fn indirect_x(&self, memory: &M, registers: &Registers) -> Result<Option<Address>> {
-        todo!()
+        let mut indir_address = memory.read_word(registers.pc + 1)?;
+        indir_address += registers.x as u16;
+        indir_address &= 0xff;
+        let address = memory.read_word(indir_address as Address)?;
+        Ok(Some(address))
     }
 
     fn indirect_y(&self, memory: &M, registers: &Registers) -> Result<Option<Address>> {
-        todo!()
+        let indir_address = memory.read_word(registers.pc + 1)?;
+        let address = memory.read_word(indir_address as Address)?;
+        Ok(Some(address + registers.y as u16))
     }
 }
 
@@ -235,6 +243,59 @@ mod tests {
 
         let address = address_dispatcher.absolute_y(&m, &r)?;
         assert_eq!(address, Some(0x1244));
+
+        Ok(())
+    }
+
+    #[test]
+    fn indirect() -> Result<()> {
+        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.pc = 0x00;
+        m.write_word(0x01, 0x1234)?;
+        m.write_word(0x1234, 0x4567)?;
+
+        let address = address_dispatcher.indirect(&m, &r)?;
+
+        assert_eq!(address, Some(0x4567));
+
+        Ok(())
+    }
+
+    #[test]
+    fn indirect_x() -> Result<()> {
+        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.pc = 0x00;
+        r.x = 0x10;
+        m.write_word(0x01, 0x1234)?;
+        m.write_word(0x44, 0x4567)?;
+
+        let address = address_dispatcher.indirect_x(&m, &r)?;
+
+        assert_eq!(address, Some(0x4567));
+
+        Ok(())
+    }
+
+    #[test]
+    fn indirect_y() -> Result<()> {
+        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.pc = 0x00;
+        r.y = 0x10;
+        m.write_word(0x01, 0x1234)?;
+        m.write_word(0x1234, 0x4567)?;
+
+        let address = address_dispatcher.indirect_y(&m, &r)?;
+
+        assert_eq!(address, Some(0x4577));
 
         Ok(())
     }
