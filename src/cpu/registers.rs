@@ -3,13 +3,13 @@ use std::fmt;
 use super::{Address, Data};
 
 pub struct Registers {
-    pc: Address,
-    sp: Data,
-    a: Data,
-    x: Data,
-    y: Data,
+    pub pc: Address,
+    pub sp: Data,
+    pub a: Data,
+    pub x: Data,
+    pub y: Data,
+    
     pc_next: Address,
-
     ps: Data,
 }
 
