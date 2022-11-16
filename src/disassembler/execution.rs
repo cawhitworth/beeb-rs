@@ -27,9 +27,19 @@ where
         data: Option<Data>,
         address: Option<Address>,
         _memory: &M,
-        registers: &Registers,
+        registers: &mut Registers,
     ) -> Result<Option<Data>> {
-        let mut diss = format!("{:4x} : {:?}", registers.pc, opcode);
+        let mut diss = format!("{:04x} : ", registers.pc);
+
+        match opcode {
+            Opcode::Invalid(o) => {
+                diss += &format!("({:02x})", o);
+            }
+            _ => {
+                diss += &format!("{:?}", opcode);
+            }
+        }
+
         if let Some(a) = address {
             diss += &format!(" &{:x}", a);
         }

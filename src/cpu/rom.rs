@@ -1,4 +1,4 @@
-use crate::cpu::{Address, Byte, Error, Memory, Result, Word};
+use crate::cpu::{Address, Byte, Error, ErrorType, Memory, Result, Word};
 
 pub struct Rom {
     memory: Vec<u8>,
@@ -17,7 +17,7 @@ impl Memory for Rom {
 
     fn read_byte(&self, address: Address) -> Result<Byte> {
         if address > self.memory.len() as u16 {
-            return Err(Error::AddressOutOfRange(address));
+            return Err(Error::without_pc(ErrorType::AddressOutOfRange(address)));
         }
 
         Ok(self.memory[address as usize])
@@ -25,7 +25,7 @@ impl Memory for Rom {
 
     fn read_word(&self, address: Address) -> Result<Word> {
         if address > self.memory.len() as u16 {
-            return Err(Error::AddressOutOfRange(address));
+            return Err(Error::without_pc(ErrorType::AddressOutOfRange(address)));
         }
 
         let base = address as usize;
@@ -76,7 +76,10 @@ mod tests {
         let address: Address = 33;
         let result = memory.read_byte(address);
 
-        assert_eq!(result, Err(Error::AddressOutOfRange(address)))
+        assert_eq!(
+            result,
+            Err(Error::without_pc(ErrorType::AddressOutOfRange(address)))
+        )
     }
 
     #[test]
@@ -96,7 +99,10 @@ mod tests {
         let address: Address = 34;
         let result = memory.read_word(address);
 
-        assert_eq!(result, Err(Error::AddressOutOfRange(address)))
+        assert_eq!(
+            result,
+            Err(Error::without_pc(ErrorType::AddressOutOfRange(address)))
+        )
     }
 
     #[test]

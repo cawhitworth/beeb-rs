@@ -37,7 +37,7 @@ for entry in decodeFile:
         opcodes[instr] = 1
         line += "Opcode::{}, AddressingMode::{}, Writeback::{}, {}, {}".format(instr, addr_map[addr], wb_map[wb], byteLen, time)
     else:
-        line += "Opcode::Invalid, AddressingMode::None, Writeback::NoWriteback, 0, 0"
+        line += "Opcode::Invalid(0x{}), AddressingMode::None, Writeback::NoWriteback, 0, 0".format(opcode)
     line += "),"
 
     print(line)

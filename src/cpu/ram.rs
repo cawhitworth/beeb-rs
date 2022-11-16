@@ -1,4 +1,4 @@
-use crate::cpu::{Error, Memory};
+use crate::cpu::{Error, ErrorType, Memory};
 
 use crate::cpu::Result;
 use crate::cpu::{Address, Byte, Word};
@@ -23,7 +23,7 @@ impl Memory for Ram {
     fn read_byte(&self, address: Address) -> Result<Byte> {
         let uaddr = address as usize;
         if uaddr >= self.memory.len() {
-            return Err(Error::AddressOutOfRange(address));
+            return Err(Error::without_pc(ErrorType::AddressOutOfRange(address)));
         }
         Ok(self.memory[uaddr])
     }
@@ -32,7 +32,7 @@ impl Memory for Ram {
         let uaddr = address as usize;
 
         if uaddr >= self.memory.len() {
-            return Err(Error::AddressOutOfRange(address));
+            return Err(Error::without_pc(ErrorType::AddressOutOfRange(address)));
         }
 
         let mut word: u16 = self.memory[uaddr] as u16;
@@ -44,7 +44,7 @@ impl Memory for Ram {
     fn write_byte(&mut self, address: Address, data: Byte) -> Result<()> {
         let uaddr = address as usize;
         if uaddr >= self.memory.len() {
-            return Err(Error::AddressOutOfRange(address));
+            return Err(Error::without_pc(ErrorType::AddressOutOfRange(address)));
         }
         self.memory[uaddr] = data;
 
@@ -55,7 +55,7 @@ impl Memory for Ram {
         let uaddr = address as usize;
 
         if uaddr >= self.memory.len() {
-            return Err(Error::AddressOutOfRange(address));
+            return Err(Error::without_pc(ErrorType::AddressOutOfRange(address)));
         }
 
         self.memory[uaddr] = (data & 0xff) as u8;
@@ -91,7 +91,10 @@ mod tests {
         let address: Address = 11;
         let result = memory.read_byte(address);
 
-        assert_eq!(result, Err(Error::AddressOutOfRange(address)))
+        assert_eq!(
+            result,
+            Err(Error::without_pc(ErrorType::AddressOutOfRange(address)))
+        )
     }
 
     #[test]
@@ -110,7 +113,10 @@ mod tests {
 
         let address: Address = 11;
         let result = memory.write_byte(address, 0);
-        assert_eq!(result, Err(Error::AddressOutOfRange(address)))
+        assert_eq!(
+            result,
+            Err(Error::without_pc(ErrorType::AddressOutOfRange(address)))
+        )
     }
 
     #[test]
@@ -130,7 +136,10 @@ mod tests {
         let address: Address = 12;
         let result = memory.read_word(address);
 
-        assert_eq!(result, Err(Error::AddressOutOfRange(address)))
+        assert_eq!(
+            result,
+            Err(Error::without_pc(ErrorType::AddressOutOfRange(address)))
+        )
     }
 
     #[test]
@@ -149,7 +158,10 @@ mod tests {
 
         let address: Address = 12;
         let result = memory.write_word(address, 0);
-        assert_eq!(result, Err(Error::AddressOutOfRange(address)))
+        assert_eq!(
+            result,
+            Err(Error::without_pc(ErrorType::AddressOutOfRange(address)))
+        )
     }
 
     #[test]

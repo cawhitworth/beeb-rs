@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::cpu::{Address, AddressingMode, Error, Memory, Registers, Result};
+use crate::cpu::{Address, AddressingMode, Error, ErrorType, Memory, Registers, Result};
 
 use super::Data;
 
@@ -115,7 +115,10 @@ where
             AddressingMode::Indirect => self.indirect(memory, registers),
             AddressingMode::IndirectX => self.indirect_x(memory, registers),
             AddressingMode::IndirectY => self.indirect_y(memory, registers),
-            AddressingMode::None => Err(Error::InvalidAddressingMode),
+            AddressingMode::None => Err(Error::with_pc(
+                registers.pc,
+                ErrorType::InvalidAddressingMode,
+            )),
         }
     }
 
@@ -183,7 +186,10 @@ where
                 let b = memory.read_byte(address.unwrap())?;
                 Ok(Some(b))
             }
-            AddressingMode::None => Err(Error::InvalidAddressingMode),
+            AddressingMode::None => Err(Error::with_pc(
+                registers.pc,
+                ErrorType::InvalidAddressingMode,
+            )),
         }
     }
 }

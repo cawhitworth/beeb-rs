@@ -21,7 +21,7 @@ impl InstructionDecoder {
                 ),
                 /* 02 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x02),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -29,7 +29,7 @@ impl InstructionDecoder {
                 ),
                 /* 03 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x03),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -37,7 +37,7 @@ impl InstructionDecoder {
                 ),
                 /* 04 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x04),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -61,7 +61,7 @@ impl InstructionDecoder {
                 ),
                 /* 07 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x07),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -87,7 +87,7 @@ impl InstructionDecoder {
                 ),
                 /* 0B */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x0B),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -95,7 +95,7 @@ impl InstructionDecoder {
                 ),
                 /* 0C */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x0C),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -119,7 +119,7 @@ impl InstructionDecoder {
                 ),
                 /* 0F */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x0F),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -137,7 +137,7 @@ impl InstructionDecoder {
                 ),
                 /* 12 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x12),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -145,7 +145,7 @@ impl InstructionDecoder {
                 ),
                 /* 13 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x13),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -153,7 +153,7 @@ impl InstructionDecoder {
                 ),
                 /* 14 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x14),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -177,7 +177,7 @@ impl InstructionDecoder {
                 ),
                 /* 17 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x17),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -201,7 +201,7 @@ impl InstructionDecoder {
                 ),
                 /* 1A */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x1A),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -209,7 +209,7 @@ impl InstructionDecoder {
                 ),
                 /* 1B */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x1B),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -217,7 +217,7 @@ impl InstructionDecoder {
                 ),
                 /* 1C */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x1C),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -241,7 +241,7 @@ impl InstructionDecoder {
                 ),
                 /* 1F */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x1F),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -259,7 +259,7 @@ impl InstructionDecoder {
                 ),
                 /* 22 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x22),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -267,7 +267,7 @@ impl InstructionDecoder {
                 ),
                 /* 23 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x23),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -299,7 +299,7 @@ impl InstructionDecoder {
                 ),
                 /* 27 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x27),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -325,7 +325,7 @@ impl InstructionDecoder {
                 ),
                 /* 2B */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x2B),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -357,7 +357,7 @@ impl InstructionDecoder {
                 ),
                 /* 2F */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x2F),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -375,7 +375,7 @@ impl InstructionDecoder {
                 ),
                 /* 32 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x32),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -383,7 +383,7 @@ impl InstructionDecoder {
                 ),
                 /* 33 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x33),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -391,7 +391,7 @@ impl InstructionDecoder {
                 ),
                 /* 34 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x34),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -415,7 +415,7 @@ impl InstructionDecoder {
                 ),
                 /* 37 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x37),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -439,7 +439,7 @@ impl InstructionDecoder {
                 ),
                 /* 3A */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x3A),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -447,7 +447,7 @@ impl InstructionDecoder {
                 ),
                 /* 3B */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x3B),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -455,7 +455,7 @@ impl InstructionDecoder {
                 ),
                 /* 3C */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x3C),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -479,7 +479,7 @@ impl InstructionDecoder {
                 ),
                 /* 3F */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x3F),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -497,7 +497,7 @@ impl InstructionDecoder {
                 ),
                 /* 42 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x42),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -505,7 +505,7 @@ impl InstructionDecoder {
                 ),
                 /* 43 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x43),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -513,7 +513,7 @@ impl InstructionDecoder {
                 ),
                 /* 44 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x44),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -537,7 +537,7 @@ impl InstructionDecoder {
                 ),
                 /* 47 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x47),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -563,7 +563,7 @@ impl InstructionDecoder {
                 ),
                 /* 4B */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x4B),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -589,7 +589,7 @@ impl InstructionDecoder {
                 ),
                 /* 4F */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x4F),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -607,7 +607,7 @@ impl InstructionDecoder {
                 ),
                 /* 52 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x52),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -615,7 +615,7 @@ impl InstructionDecoder {
                 ),
                 /* 53 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x53),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -623,7 +623,7 @@ impl InstructionDecoder {
                 ),
                 /* 54 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x54),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -647,7 +647,7 @@ impl InstructionDecoder {
                 ),
                 /* 57 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x57),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -671,7 +671,7 @@ impl InstructionDecoder {
                 ),
                 /* 5A */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x5A),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -679,7 +679,7 @@ impl InstructionDecoder {
                 ),
                 /* 5B */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x5B),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -687,7 +687,7 @@ impl InstructionDecoder {
                 ),
                 /* 5C */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x5C),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -711,7 +711,7 @@ impl InstructionDecoder {
                 ),
                 /* 5F */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x5F),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -729,7 +729,7 @@ impl InstructionDecoder {
                 ),
                 /* 62 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x62),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -737,7 +737,7 @@ impl InstructionDecoder {
                 ),
                 /* 63 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x63),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -745,7 +745,7 @@ impl InstructionDecoder {
                 ),
                 /* 64 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x64),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -769,7 +769,7 @@ impl InstructionDecoder {
                 ),
                 /* 67 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x67),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -801,7 +801,7 @@ impl InstructionDecoder {
                 ),
                 /* 6B */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x6B),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -827,7 +827,7 @@ impl InstructionDecoder {
                 ),
                 /* 6F */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x6F),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -845,7 +845,7 @@ impl InstructionDecoder {
                 ),
                 /* 72 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x72),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -853,7 +853,7 @@ impl InstructionDecoder {
                 ),
                 /* 73 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x73),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -861,7 +861,7 @@ impl InstructionDecoder {
                 ),
                 /* 74 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x74),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -885,7 +885,7 @@ impl InstructionDecoder {
                 ),
                 /* 77 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x77),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -909,7 +909,7 @@ impl InstructionDecoder {
                 ),
                 /* 7A */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x7A),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -917,7 +917,7 @@ impl InstructionDecoder {
                 ),
                 /* 7B */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x7B),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -925,7 +925,7 @@ impl InstructionDecoder {
                 ),
                 /* 7C */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x7C),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -949,7 +949,7 @@ impl InstructionDecoder {
                 ),
                 /* 7F */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x7F),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -957,7 +957,7 @@ impl InstructionDecoder {
                 ),
                 /* 80 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x80),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -973,7 +973,7 @@ impl InstructionDecoder {
                 ),
                 /* 82 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x82),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -981,7 +981,7 @@ impl InstructionDecoder {
                 ),
                 /* 83 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x83),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1013,7 +1013,7 @@ impl InstructionDecoder {
                 ),
                 /* 87 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x87),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1023,7 +1023,7 @@ impl InstructionDecoder {
                 Instruction::new(Opcode::DEY, AddressingMode::Implicit, Writeback::Y, 1, 2),
                 /* 89 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x89),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1039,7 +1039,7 @@ impl InstructionDecoder {
                 ),
                 /* 8B */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x8B),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1071,7 +1071,7 @@ impl InstructionDecoder {
                 ),
                 /* 8F */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x8F),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1089,7 +1089,7 @@ impl InstructionDecoder {
                 ),
                 /* 92 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x92),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1097,7 +1097,7 @@ impl InstructionDecoder {
                 ),
                 /* 93 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x93),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1129,7 +1129,7 @@ impl InstructionDecoder {
                 ),
                 /* 97 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x97),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1155,7 +1155,7 @@ impl InstructionDecoder {
                 Instruction::new(Opcode::TXS, AddressingMode::Implicit, Writeback::SP, 1, 2),
                 /* 9B */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x9B),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1163,7 +1163,7 @@ impl InstructionDecoder {
                 ),
                 /* 9C */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x9C),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1179,7 +1179,7 @@ impl InstructionDecoder {
                 ),
                 /* 9E */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x9E),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1187,7 +1187,7 @@ impl InstructionDecoder {
                 ),
                 /* 9F */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0x9F),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1207,7 +1207,7 @@ impl InstructionDecoder {
                 Instruction::new(Opcode::LDX, AddressingMode::Immediate, Writeback::X, 2, 2),
                 /* A3 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xA3),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1227,7 +1227,7 @@ impl InstructionDecoder {
                 Instruction::new(Opcode::LDX, AddressingMode::ZeroPage, Writeback::X, 2, 3),
                 /* A7 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xA7),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1247,7 +1247,7 @@ impl InstructionDecoder {
                 Instruction::new(Opcode::TAX, AddressingMode::Implicit, Writeback::X, 1, 2),
                 /* AB */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xAB),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1267,7 +1267,7 @@ impl InstructionDecoder {
                 Instruction::new(Opcode::LDX, AddressingMode::Absolute, Writeback::X, 3, 4),
                 /* AF */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xAF),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1285,7 +1285,7 @@ impl InstructionDecoder {
                 ),
                 /* B2 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xB2),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1293,7 +1293,7 @@ impl InstructionDecoder {
                 ),
                 /* B3 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xB3),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1313,7 +1313,7 @@ impl InstructionDecoder {
                 Instruction::new(Opcode::LDX, AddressingMode::ZeroPageY, Writeback::X, 2, 4),
                 /* B7 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xB7),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1339,7 +1339,7 @@ impl InstructionDecoder {
                 Instruction::new(Opcode::TSX, AddressingMode::Implicit, Writeback::X, 1, 2),
                 /* BB */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xBB),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1359,7 +1359,7 @@ impl InstructionDecoder {
                 Instruction::new(Opcode::LDX, AddressingMode::AbsoluteY, Writeback::X, 3, 4),
                 /* BF */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xBF),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1383,7 +1383,7 @@ impl InstructionDecoder {
                 ),
                 /* C2 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xC2),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1391,7 +1391,7 @@ impl InstructionDecoder {
                 ),
                 /* C3 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xC3),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1423,7 +1423,7 @@ impl InstructionDecoder {
                 ),
                 /* C7 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xC7),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1443,7 +1443,7 @@ impl InstructionDecoder {
                 Instruction::new(Opcode::DEX, AddressingMode::Implicit, Writeback::X, 1, 2),
                 /* CB */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xCB),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1475,7 +1475,7 @@ impl InstructionDecoder {
                 ),
                 /* CF */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xCF),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1493,7 +1493,7 @@ impl InstructionDecoder {
                 ),
                 /* D2 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xD2),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1501,7 +1501,7 @@ impl InstructionDecoder {
                 ),
                 /* D3 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xD3),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1509,7 +1509,7 @@ impl InstructionDecoder {
                 ),
                 /* D4 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xD4),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1533,7 +1533,7 @@ impl InstructionDecoder {
                 ),
                 /* D7 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xD7),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1557,7 +1557,7 @@ impl InstructionDecoder {
                 ),
                 /* DA */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xDA),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1565,7 +1565,7 @@ impl InstructionDecoder {
                 ),
                 /* DB */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xDB),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1573,7 +1573,7 @@ impl InstructionDecoder {
                 ),
                 /* DC */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xDC),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1597,7 +1597,7 @@ impl InstructionDecoder {
                 ),
                 /* DF */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xDF),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1621,7 +1621,7 @@ impl InstructionDecoder {
                 ),
                 /* E2 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xE2),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1629,7 +1629,7 @@ impl InstructionDecoder {
                 ),
                 /* E3 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xE3),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1661,7 +1661,7 @@ impl InstructionDecoder {
                 ),
                 /* E7 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xE7),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1687,7 +1687,7 @@ impl InstructionDecoder {
                 ),
                 /* EB */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xEB),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1719,7 +1719,7 @@ impl InstructionDecoder {
                 ),
                 /* EF */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xEF),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1737,7 +1737,7 @@ impl InstructionDecoder {
                 ),
                 /* F2 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xF2),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1745,7 +1745,7 @@ impl InstructionDecoder {
                 ),
                 /* F3 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xF3),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1753,7 +1753,7 @@ impl InstructionDecoder {
                 ),
                 /* F4 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xF4),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1777,7 +1777,7 @@ impl InstructionDecoder {
                 ),
                 /* F7 */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xF7),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1801,7 +1801,7 @@ impl InstructionDecoder {
                 ),
                 /* FA */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xFA),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1809,7 +1809,7 @@ impl InstructionDecoder {
                 ),
                 /* FB */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xFB),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1817,7 +1817,7 @@ impl InstructionDecoder {
                 ),
                 /* FC */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xFC),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,
@@ -1841,7 +1841,7 @@ impl InstructionDecoder {
                 ),
                 /* FF */
                 Instruction::new(
-                    Opcode::Invalid,
+                    Opcode::Invalid(0xFF),
                     AddressingMode::None,
                     Writeback::NoWriteback,
                     0,

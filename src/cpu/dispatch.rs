@@ -1,9 +1,9 @@
 use crate::cpu::registers::Registers;
-use crate::cpu::{AddressDataDispatcher, InstructionDecoder, Memory, Result};
+use crate::cpu::{AddressDataDispatcher, InstructionDecoder, Memory, Opcode, Result};
 
 use crate::cpu::ExecutionUnit;
 
-use super::WritebackUnit;
+use super::{Error, ErrorType, WritebackUnit};
 
 pub struct Dispatcher<I, A, M, E, W>
 where
@@ -51,43 +51,62 @@ where
         let opcode = self.memory.read_byte(self.registers.pc)?;
         let instruction = self.instruction_decoder.decode(opcode)?;
 
-        if instruction.opcode != crate::cpu::Opcode::Invalid {
-            self.registers.pc_next = self.registers.pc + instruction.byte_length as u16;
+        match instruction.opcode {
+            Opcode::Invalid(o) => {
+                self.registers.pc_next = self.registers.pc + 1;
 
-            let address = self.address_dispatcher.get_address(
-                &instruction.addressing_mode,
-                &self.memory,
-                &self.registers,
-            )?;
+                let result = self.execution_unit.execute(
+                    &instruction.opcode,
+                    None,
+                    None,
+                    &self.memory,
+                    &mut self.registers,
+                );
 
-            let data = self.address_dispatcher.get_data(
-                &instruction.addressing_mode,
-                &self.memory,
-                &self.registers,
-            )?;
+                self.registers.pc = self.registers.pc_next;
 
-            let result = self.execution_unit.execute(
-                &instruction.opcode,
-                data,
-                address,
-                &self.memory,
-                &self.registers,
-            )?;
+                if let Err(e) = result {
+                    Err(e)
+                } else {
+                    Ok(())
+                }
+            }
+            _ => {
+                self.registers.pc_next = self.registers.pc + instruction.byte_length as u16;
 
-            if result.is_some() {
-                self.writeback_unit.writeback(
-                    &instruction.writeback,
-                    result,
+                let address = self.address_dispatcher.get_address(
+                    &instruction.addressing_mode,
+                    &self.memory,
+                    &self.registers,
+                )?;
+
+                let data = self.address_dispatcher.get_data(
+                    &instruction.addressing_mode,
+                    &self.memory,
+                    &self.registers,
+                )?;
+
+                let result = self.execution_unit.execute(
+                    &instruction.opcode,
+                    data,
                     address,
-                    &mut self.memory,
+                    &self.memory,
                     &mut self.registers,
                 )?;
-            }
 
-            self.registers.pc = self.registers.pc_next;
-            Ok(())
-        } else {
-            Err(crate::cpu::Error::InvalidInstruction(opcode))
+                if result.is_some() {
+                    self.writeback_unit.writeback(
+                        &instruction.writeback,
+                        result,
+                        address,
+                        &mut self.memory,
+                        &mut self.registers,
+                    )?;
+                }
+
+                self.registers.pc = self.registers.pc_next;
+                Ok(())
+            }
         }
     }
 

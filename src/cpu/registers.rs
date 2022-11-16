@@ -42,6 +42,14 @@ impl Registers {
         (self.ps & bit as u8) != 0
     }
 
+    pub fn write_flag(&mut self, bit: StatusBits, set: bool) {
+        if set {
+            self.set_flag(bit);
+        } else {
+            self.clear_flag(bit);
+        }
+    }
+
     pub fn set_flag(&mut self, bit: StatusBits) {
         self.ps |= bit as u8;
     }

@@ -1,3 +1,5 @@
+use std::fmt;
+
 use self::registers::Registers;
 
 pub mod address;
@@ -16,10 +18,58 @@ pub type Address = Word;
 pub type Data = Byte;
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum Error {
+pub enum ErrorType {
     AddressOutOfRange(Address),
     InvalidAddressingMode,
-    InvalidInstruction(Data),
+    InvalidInstruction(Byte),
+    MissingData,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct Error {
+    pub pc: Option<Address>,
+    pub error_type: ErrorType,
+}
+
+impl Error {
+    fn with_pc(pc: Address, error_type: ErrorType) -> Self {
+        Error {
+            pc: Some(pc),
+            error_type,
+        }
+    }
+
+    fn without_pc(error_type: ErrorType) -> Self {
+        Error {
+            pc: None,
+            error_type,
+        }
+    }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.error_type {
+            ErrorType::AddressOutOfRange(addr) => {
+                f.write_fmt(format_args!("Address out of range (0x{:04x})", addr));
+            }
+            ErrorType::InvalidAddressingMode => {
+                f.write_fmt(format_args!("Invalid addressing mode"));
+            }
+            ErrorType::InvalidInstruction(opcode) => {
+                f.write_fmt(format_args!("Invalid instruction ({:02x})", opcode));
+            }
+            ErrorType::MissingData => {
+                f.write_fmt(format_args!("Missing data"));
+            }
+        }
+
+        if let Some(pc) = self.pc {
+            f.write_fmt(format_args!(" at 0x{:04x}", pc));
+        }
+
+        Ok(())
+    }
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -93,7 +143,7 @@ pub enum Opcode {
     TXA,
     TXS,
     TYA,
-    Invalid = -1,
+    Invalid(Byte),
 }
 
 pub enum AddressingMode {
@@ -183,7 +233,7 @@ where
         data: Option<Data>,
         address: Option<Address>,
         memory: &M,
-        registers: &Registers,
+        registers: &mut Registers,
     ) -> Result<Option<Data>>;
 }
 
