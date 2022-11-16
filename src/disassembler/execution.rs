@@ -36,7 +36,7 @@ where
         if let Some(d) = data {
             diss += &format!(" #{:x}", d)
         }
-        println!("{}",diss);
+        println!("{}", diss);
         Ok(None)
     }
 }

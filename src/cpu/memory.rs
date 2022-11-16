@@ -1,28 +1,41 @@
-use crate::cpu::{Address, Byte, Word, Memory, Result};
+use crate::cpu::{Address, Byte, Memory, Result, Word};
 
 pub struct OverlayMemory<M, O>
-where M: Memory, O: Memory
+where
+    M: Memory,
+    O: Memory,
 {
     pub base_memory: M,
 
     pub overlay_memory: O,
-    overlay_offset: Address
+    overlay_offset: Address,
 }
 
-impl<M,O> OverlayMemory<M,O>
-where M: Memory, O: Memory{
+impl<M, O> OverlayMemory<M, O>
+where
+    M: Memory,
+    O: Memory,
+{
     pub fn new(base_memory: M, overlay_memory: O, overlay_offset: Address) -> Self {
         let base_end = base_memory.length();
         let overlay_end = overlay_offset as usize + overlay_memory.length();
 
         if overlay_offset as usize > base_end || overlay_end > base_end {
-            panic!("Overlay ({:4x}-{:4x}) cannot be outside of base ({:4x}-{:4x})", overlay_offset, overlay_end, 0x00, base_end);
+            panic!(
+                "Overlay ({:4x}-{:4x}) cannot be outside of base ({:4x}-{:4x})",
+                overlay_offset, overlay_end, 0x00, base_end
+            );
         }
-        OverlayMemory {base_memory, overlay_memory, overlay_offset }
+        OverlayMemory {
+            base_memory,
+            overlay_memory,
+            overlay_offset,
+        }
     }
 
     fn in_overlay(&self, address: Address) -> bool {
-        address >= self.overlay_offset && address < self.overlay_offset + self.overlay_memory.length() as u16
+        address >= self.overlay_offset
+            && address < self.overlay_offset + self.overlay_memory.length() as u16
     }
 
     fn get_in_overlay(&self, address: Address) -> Option<Address> {
@@ -34,41 +47,44 @@ where M: Memory, O: Memory{
     }
 }
 
-impl<M,O> Memory for OverlayMemory<M,O>
-where M: Memory, O: Memory{
+impl<M, O> Memory for OverlayMemory<M, O>
+where
+    M: Memory,
+    O: Memory,
+{
     fn length(&self) -> usize {
         self.base_memory.length()
     }
 
     fn read_byte(&self, address: Address) -> Result<Byte> {
         if let Some(overlay_addr) = self.get_in_overlay(address) {
-            return self.overlay_memory.read_byte(overlay_addr);
+            self.overlay_memory.read_byte(overlay_addr)
         } else {
-            return self.base_memory.read_byte(address);
+            self.base_memory.read_byte(address)
         }
     }
 
     fn read_word(&self, address: Address) -> Result<Word> {
         if let Some(overlay_addr) = self.get_in_overlay(address) {
-            return self.overlay_memory.read_word(overlay_addr);
+            self.overlay_memory.read_word(overlay_addr)
         } else {
-            return self.base_memory.read_word(address);
+            self.base_memory.read_word(address)
         }
     }
 
     fn write_byte(&mut self, address: Address, data: Byte) -> Result<()> {
         if let Some(overlay_addr) = self.get_in_overlay(address) {
-            return self.overlay_memory.write_byte(overlay_addr, data);
+            self.overlay_memory.write_byte(overlay_addr, data)
         } else {
-            return self.base_memory.write_byte(address, data);
+            self.base_memory.write_byte(address, data)
         }
     }
 
     fn write_word(&mut self, address: Address, data: Word) -> Result<()> {
         if let Some(overlay_addr) = self.get_in_overlay(address) {
-            return self.overlay_memory.write_word(overlay_addr, data);
+            self.overlay_memory.write_word(overlay_addr, data)
         } else {
-            return self.base_memory.write_word(address, data);
+            self.base_memory.write_word(address, data)
         }
     }
 }
@@ -79,7 +95,6 @@ mod tests {
 
     use crate::cpu::ram::Ram;
     use crate::cpu::rom::Rom;
-
 
     #[test]
     fn construct() {
@@ -154,6 +169,5 @@ mod tests {
         let base_read = overlay_mem.base_memory.read_byte(0x00)?;
         assert_eq!(base_read, 0xba);
         Ok(())
-        
     }
 }

@@ -91,7 +91,7 @@ where
     }
 }
 
-impl<M> crate::cpu::AddressDispatcher<M> for AddressAndDataDispatch<M>
+impl<M> crate::cpu::AddressDataDispatcher<M> for AddressAndDataDispatch<M>
 where
     M: Memory,
 {
@@ -118,12 +118,7 @@ where
             AddressingMode::None => Err(Error::InvalidAddressingMode),
         }
     }
-}
 
-impl<M> crate::cpu::DataDispatcher<M> for AddressAndDataDispatch<M>
-where
-    M: Memory,
-{
     fn get_data(
         &self,
         mode: &AddressingMode,
@@ -196,7 +191,7 @@ where
 #[cfg(test)]
 mod address_tests {
     use super::*;
-    use crate::cpu::{ram::Ram, AddressDispatcher};
+    use crate::cpu::{ram::Ram, AddressDataDispatcher};
 
     #[test]
     fn implicit() -> Result<()> {
@@ -404,7 +399,7 @@ mod address_tests {
 
 #[cfg(test)]
 mod data_tests {
-    use crate::cpu::{ram::Ram, DataDispatcher};
+    use crate::cpu::{ram::Ram, AddressDataDispatcher};
 
     use super::*;
 

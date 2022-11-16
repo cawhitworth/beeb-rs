@@ -4,11 +4,11 @@ pub mod address;
 pub mod dispatch;
 pub mod execution;
 pub mod instruction_decode;
+pub mod memory;
 pub mod ram;
 pub mod registers;
 pub mod rom;
 pub mod writeback;
-pub mod memory;
 
 pub type Byte = u8;
 pub type Word = u16;
@@ -153,7 +153,7 @@ pub trait InstructionDecoder {
     fn decode(&self, opcode: Byte) -> Result<&Instruction>;
 }
 
-pub trait AddressDispatcher<M>
+pub trait AddressDataDispatcher<M>
 where
     M: Memory,
 {
@@ -163,12 +163,7 @@ where
         memory: &M,
         registers: &Registers,
     ) -> Result<Option<Address>>;
-}
 
-pub trait DataDispatcher<M>
-where
-    M: Memory,
-{
     fn get_data(
         &self,
         mode: &AddressingMode,
