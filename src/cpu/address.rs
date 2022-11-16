@@ -2,16 +2,18 @@ use std::marker::PhantomData;
 
 use crate::cpu::{Address, AddressingMode, Error, Memory, Registers, Result};
 
-pub struct AddressDispatcher<M> {
+use super::Data;
+
+pub struct AddressAndDataDispatch<M> {
     phantom: PhantomData<M>,
 }
 
-impl<M> AddressDispatcher<M>
+impl<M> AddressAndDataDispatch<M>
 where
     M: Memory,
 {
     pub fn new() -> Self {
-        AddressDispatcher {
+        AddressAndDataDispatch {
             phantom: PhantomData,
         }
     }
@@ -46,8 +48,8 @@ where
     }
 
     fn relative(&self, memory: &M, registers: &Registers) -> Result<Option<Address>> {
-        let offset = memory.read_byte(registers.pc + 1)? as u16;
-        let address = (registers.pc).wrapping_add(offset);
+        let offset = memory.read_byte(registers.pc + 1)? as i8;
+        let address = (registers.pc_next).wrapping_add(offset as u16);
 
         Ok(Some(address))
     }
@@ -89,11 +91,11 @@ where
     }
 }
 
-impl<M> crate::cpu::AddressDispatcher<M> for AddressDispatcher<M>
+impl<M> crate::cpu::AddressDispatcher<M> for AddressAndDataDispatch<M>
 where
     M: Memory,
 {
-    fn dispatch(
+    fn get_address(
         &self,
         mode: &AddressingMode,
         memory: &M,
@@ -118,20 +120,118 @@ where
     }
 }
 
+impl<M> crate::cpu::DataDispatcher<M> for AddressAndDataDispatch<M>
+where
+    M: Memory,
+{
+    fn get_data(
+        &self,
+        mode: &AddressingMode,
+        memory: &M,
+        registers: &Registers,
+    ) -> Result<Option<Data>> {
+        match mode {
+            AddressingMode::Implicit => Ok(None),
+            AddressingMode::Accumulator => Ok(Some(registers.a)),
+            AddressingMode::Immediate => {
+                let address = self.immediate(memory, registers)?;
+                let b = memory.read_byte(address.unwrap())?;
+                Ok(Some(b))
+            }
+            AddressingMode::ZeroPage => {
+                let address = self.zero_page(memory, registers)?;
+                let b = memory.read_byte(address.unwrap())?;
+                Ok(Some(b))
+            }
+            AddressingMode::ZeroPageX => {
+                let address = self.zero_page_x(memory, registers)?;
+                let b = memory.read_byte(address.unwrap())?;
+                Ok(Some(b))
+            }
+            AddressingMode::ZeroPageY => {
+                let address = self.zero_page_y(memory, registers)?;
+                let b = memory.read_byte(address.unwrap())?;
+                Ok(Some(b))
+            }
+            AddressingMode::Relative => {
+                let address = self.relative(memory, registers)?;
+                let b = memory.read_byte(address.unwrap())?;
+                Ok(Some(b))
+            }
+            AddressingMode::Absolute => {
+                let address = self.absolute(memory, registers)?;
+                let b = memory.read_byte(address.unwrap())?;
+                Ok(Some(b))
+            }
+            AddressingMode::AbsoluteX => {
+                let address = self.absolute_x(memory, registers)?;
+                let b = memory.read_byte(address.unwrap())?;
+                Ok(Some(b))
+            }
+            AddressingMode::AbsoluteY => {
+                let address = self.absolute_y(memory, registers)?;
+                let b = memory.read_byte(address.unwrap())?;
+                Ok(Some(b))
+            }
+            AddressingMode::Indirect => {
+                let address = self.indirect(memory, registers)?;
+                let b = memory.read_byte(address.unwrap())?;
+                Ok(Some(b))
+            }
+            AddressingMode::IndirectX => {
+                let address = self.indirect_x(memory, registers)?;
+                let b = memory.read_byte(address.unwrap())?;
+                Ok(Some(b))
+            }
+            AddressingMode::IndirectY => {
+                let address = self.indirect_y(memory, registers)?;
+                let b = memory.read_byte(address.unwrap())?;
+                Ok(Some(b))
+            }
+            AddressingMode::None => Err(Error::InvalidAddressingMode),
+        }
+    }
+}
+
 #[cfg(test)]
-mod tests {
+mod address_tests {
     use super::*;
-    use crate::cpu::ram::Ram;
+    use crate::cpu::{ram::Ram, AddressDispatcher};
+
+    #[test]
+    fn implicit() -> Result<()> {
+        let address_dispatcher = AddressAndDataDispatch::new();
+        let m = Ram::new(65536);
+        let r = Registers::new();
+
+        let address = address_dispatcher.get_address(&AddressingMode::Implicit, &m, &r)?;
+        assert_eq!(address, None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn accumulator() -> Result<()> {
+        let address_dispatcher = AddressAndDataDispatch::new();
+        let m = Ram::new(65536);
+        let mut r = Registers::new();
+        r.a = 0x10;
+
+        let address = address_dispatcher.get_address(&AddressingMode::Accumulator, &m, &r)?;
+        assert_eq!(address, None);
+
+        Ok(())
+    }
 
     #[test]
     fn immediate() -> Result<()> {
-        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let address_dispatcher = AddressAndDataDispatch::new();
         let mut _m = Ram::new(65536);
         let mut r = Registers::new();
 
         r.pc = 0x10;
 
-        let address = address_dispatcher.immediate(&_m, &r)?;
+        let address = address_dispatcher.get_address(&AddressingMode::Immediate, &_m, &r)?;
         assert_eq!(address, Some(0x11));
 
         Ok(())
@@ -139,7 +239,7 @@ mod tests {
 
     #[test]
     fn zero_page() -> Result<()> {
-        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let address_dispatcher = AddressAndDataDispatch::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
 
@@ -147,7 +247,7 @@ mod tests {
         r.pc = 0x10;
         m.write_byte(r.pc + 1, expected_address)?;
 
-        let address = address_dispatcher.zero_page(&m, &r)?;
+        let address = address_dispatcher.get_address(&AddressingMode::ZeroPage, &m, &r)?;
         assert_eq!(address, Some(expected_address as u16));
 
         Ok(())
@@ -155,7 +255,7 @@ mod tests {
 
     #[test]
     fn zero_page_x() -> Result<()> {
-        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let address_dispatcher = AddressAndDataDispatch::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
 
@@ -163,7 +263,7 @@ mod tests {
         r.x = 0x80;
         m.write_byte(r.pc + 1, 0x81)?;
 
-        let address = address_dispatcher.zero_page_x(&m, &r)?;
+        let address = address_dispatcher.get_address(&AddressingMode::ZeroPageX, &m, &r)?;
         assert_eq!(address, Some(0x0001 as u16));
 
         Ok(())
@@ -171,7 +271,7 @@ mod tests {
 
     #[test]
     fn zero_page_y() -> Result<()> {
-        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let address_dispatcher = AddressAndDataDispatch::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
 
@@ -179,7 +279,7 @@ mod tests {
         r.y = 0x80;
         m.write_byte(r.pc + 1, 0x81)?;
 
-        let address = address_dispatcher.zero_page_y(&m, &r)?;
+        let address = address_dispatcher.get_address(&AddressingMode::ZeroPageY, &m, &r)?;
         assert_eq!(address, Some(0x0001 as u16));
 
         Ok(())
@@ -187,29 +287,30 @@ mod tests {
 
     #[test]
     fn relative() -> Result<()> {
-        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let address_dispatcher = AddressAndDataDispatch::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
 
-        r.pc = 0x00;
-        m.write_byte(0x01, 0x10)?;
+        r.pc = 0x10;
+        r.pc_next = 0x10;
+        m.write_byte(0x11, 0xff)?;
 
-        let address = address_dispatcher.relative(&m, &r)?;
-        assert_eq!(address, Some(0x10));
+        let address = address_dispatcher.get_address(&AddressingMode::Relative, &m, &r)?;
+        assert_eq!(address, Some(0x0f));
 
         Ok(())
     }
 
     #[test]
     fn absolute() -> Result<()> {
-        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let address_dispatcher = AddressAndDataDispatch::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
 
         r.pc = 0x00;
         m.write_word(0x01, 0x01234)?;
 
-        let address = address_dispatcher.absolute(&m, &r)?;
+        let address = address_dispatcher.get_address(&AddressingMode::Absolute, &m, &r)?;
         assert_eq!(address, Some(0x1234));
 
         Ok(())
@@ -217,7 +318,7 @@ mod tests {
 
     #[test]
     fn absolute_x() -> Result<()> {
-        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let address_dispatcher = AddressAndDataDispatch::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
 
@@ -225,7 +326,7 @@ mod tests {
         r.x = 0x10;
         m.write_word(0x01, 0x01234)?;
 
-        let address = address_dispatcher.absolute_x(&m, &r)?;
+        let address = address_dispatcher.get_address(&AddressingMode::AbsoluteX, &m, &r)?;
         assert_eq!(address, Some(0x1244));
 
         Ok(())
@@ -233,7 +334,7 @@ mod tests {
 
     #[test]
     fn absolute_y() -> Result<()> {
-        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let address_dispatcher = AddressAndDataDispatch::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
 
@@ -241,7 +342,7 @@ mod tests {
         r.y = 0x10;
         m.write_word(0x01, 0x01234)?;
 
-        let address = address_dispatcher.absolute_y(&m, &r)?;
+        let address = address_dispatcher.get_address(&AddressingMode::AbsoluteY, &m, &r)?;
         assert_eq!(address, Some(0x1244));
 
         Ok(())
@@ -249,7 +350,7 @@ mod tests {
 
     #[test]
     fn indirect() -> Result<()> {
-        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let address_dispatcher = AddressAndDataDispatch::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
 
@@ -257,7 +358,7 @@ mod tests {
         m.write_word(0x01, 0x1234)?;
         m.write_word(0x1234, 0x4567)?;
 
-        let address = address_dispatcher.indirect(&m, &r)?;
+        let address = address_dispatcher.get_address(&AddressingMode::Indirect, &m, &r)?;
 
         assert_eq!(address, Some(0x4567));
 
@@ -266,7 +367,7 @@ mod tests {
 
     #[test]
     fn indirect_x() -> Result<()> {
-        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let address_dispatcher = AddressAndDataDispatch::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
 
@@ -275,7 +376,7 @@ mod tests {
         m.write_word(0x01, 0x1234)?;
         m.write_word(0x44, 0x4567)?;
 
-        let address = address_dispatcher.indirect_x(&m, &r)?;
+        let address = address_dispatcher.get_address(&AddressingMode::IndirectX, &m, &r)?;
 
         assert_eq!(address, Some(0x4567));
 
@@ -284,7 +385,7 @@ mod tests {
 
     #[test]
     fn indirect_y() -> Result<()> {
-        let address_dispatcher: AddressDispatcher<Ram> = AddressDispatcher::new();
+        let address_dispatcher = AddressAndDataDispatch::new();
         let mut m = Ram::new(65536);
         let mut r = Registers::new();
 
@@ -293,9 +394,223 @@ mod tests {
         m.write_word(0x01, 0x1234)?;
         m.write_word(0x1234, 0x4567)?;
 
-        let address = address_dispatcher.indirect_y(&m, &r)?;
+        let address = address_dispatcher.get_address(&AddressingMode::IndirectY, &m, &r)?;
 
         assert_eq!(address, Some(0x4577));
+
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod data_tests {
+    use crate::cpu::{ram::Ram, DataDispatcher};
+
+    use super::*;
+
+    #[test]
+    fn implicit() -> Result<()> {
+        let data_dispatcher = AddressAndDataDispatch::new();
+        let m = Ram::new(65536);
+        let r = Registers::new();
+
+        let data = data_dispatcher.get_data(&AddressingMode::Implicit, &m, &r)?;
+        assert_eq!(data, None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn accumulator() -> Result<()> {
+        let data_dispatcher = AddressAndDataDispatch::new();
+        let m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.a = 0x10;
+        let data = data_dispatcher.get_data(&AddressingMode::Accumulator, &m, &r)?;
+        assert_eq!(data, Some(0x10));
+
+        Ok(())
+    }
+
+    #[test]
+    fn immediate() -> Result<()> {
+        let data_dispatcher = AddressAndDataDispatch::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.pc = 0x00;
+        m.write_byte(0x0001, 0x7f)?;
+        let data = data_dispatcher.get_data(&AddressingMode::Immediate, &m, &r)?;
+
+        assert_eq!(data, Some(0x7f));
+
+        Ok(())
+    }
+
+    #[test]
+    fn zero_page() -> Result<()> {
+        let data_dispatcher = AddressAndDataDispatch::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+        r.pc = 0x00;
+        m.write_byte(0x0001, 0x7f)?;
+        m.write_byte(0x007f, 0xaa)?;
+
+        let data = data_dispatcher.get_data(&AddressingMode::ZeroPage, &m, &r)?;
+        assert_eq!(data, Some(0xaa));
+
+        Ok(())
+    }
+
+    #[test]
+    fn zero_page_x() -> Result<()> {
+        let data_dispatcher = AddressAndDataDispatch::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+        r.pc = 0x00;
+        r.x = 0x10;
+        m.write_byte(0x0001, 0xff)?;
+        m.write_byte(0x000f, 0xaa)?;
+
+        let data = data_dispatcher.get_data(&AddressingMode::ZeroPageX, &m, &r)?;
+        assert_eq!(data, Some(0xaa));
+
+        Ok(())
+    }
+
+    #[test]
+    fn zero_page_y() -> Result<()> {
+        let data_dispatcher = AddressAndDataDispatch::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+        r.pc = 0x00;
+        r.y = 0x10;
+        m.write_byte(0x0001, 0xff)?;
+        m.write_byte(0x000f, 0xaa)?;
+
+        let data = data_dispatcher.get_data(&AddressingMode::ZeroPageY, &m, &r)?;
+        assert_eq!(data, Some(0xaa));
+
+        Ok(())
+    }
+
+    #[test]
+    fn relative() -> Result<()> {
+        let data_dispatcher = AddressAndDataDispatch::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.pc = 0x10;
+        r.pc_next = 0x10;
+        m.write_byte(0x11, 0xff)?;
+        m.write_byte(0x0f, 0xaa)?;
+
+        let data = data_dispatcher.get_data(&AddressingMode::Relative, &m, &r)?;
+        assert_eq!(data, Some(0xaa));
+
+        Ok(())
+    }
+
+    #[test]
+    fn absolute() -> Result<()> {
+        let data_dispatcher = AddressAndDataDispatch::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.pc = 0x0010;
+        m.write_word(0x0011, 0x1234)?;
+        m.write_byte(0x1234, 0xaa)?;
+
+        let data = data_dispatcher.get_data(&AddressingMode::Absolute, &m, &r)?;
+        assert_eq!(data, Some(0xaa));
+
+        Ok(())
+    }
+
+    #[test]
+    fn absolute_x() -> Result<()> {
+        let data_dispatcher = AddressAndDataDispatch::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.pc = 0x0010;
+        r.x = 0x10;
+        m.write_word(0x0011, 0x1234)?;
+        m.write_byte(0x1244, 0xaa)?;
+
+        let data = data_dispatcher.get_data(&AddressingMode::AbsoluteX, &m, &r)?;
+        assert_eq!(data, Some(0xaa));
+
+        Ok(())
+    }
+
+    #[test]
+    fn absolute_y() -> Result<()> {
+        let data_dispatcher = AddressAndDataDispatch::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.pc = 0x0010;
+        r.y = 0x10;
+        m.write_word(0x0011, 0x1234)?;
+        m.write_byte(0x1244, 0xaa)?;
+
+        let data = data_dispatcher.get_data(&AddressingMode::AbsoluteY, &m, &r)?;
+        assert_eq!(data, Some(0xaa));
+
+        Ok(())
+    }
+
+    #[test]
+    fn indirect() -> Result<()> {
+        let data_dispatcher = AddressAndDataDispatch::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.pc = 0x0010;
+        m.write_word(0x0011, 0x1234)?;
+        m.write_word(0x1234, 0x5678)?;
+        m.write_byte(0x5678, 0xaa)?;
+
+        let data = data_dispatcher.get_data(&AddressingMode::Indirect, &m, &r)?;
+        assert_eq!(data, Some(0xaa));
+
+        Ok(())
+    }
+
+    #[test]
+    fn indirect_x() -> Result<()> {
+        let data_dispatcher = AddressAndDataDispatch::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.pc = 0x0010;
+        r.x = 0x01;
+        m.write_byte(0x0011, 0xff)?;
+        m.write_word(0x0000, 0x1234)?;
+        m.write_byte(0x1234, 0xaa)?;
+
+        let data = data_dispatcher.get_data(&AddressingMode::IndirectX, &m, &r)?;
+        assert_eq!(data, Some(0xaa));
+
+        Ok(())
+    }
+
+    #[test]
+    fn indirect_y() -> Result<()> {
+        let data_dispatcher = AddressAndDataDispatch::new();
+        let mut m = Ram::new(65536);
+        let mut r = Registers::new();
+
+        r.pc = 0x0010;
+        r.y = 0x10;
+        m.write_byte(0x0011, 0xff)?;
+        m.write_word(0x00ff, 0x1234)?;
+        m.write_byte(0x1244, 0xaa)?;
+
+        let data = data_dispatcher.get_data(&AddressingMode::IndirectY, &m, &r)?;
+        assert_eq!(data, Some(0xaa));
 
         Ok(())
     }

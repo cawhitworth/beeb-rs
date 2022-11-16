@@ -1,7 +1,6 @@
 use self::registers::Registers;
 
 pub mod address;
-pub mod data;
 pub mod dispatch;
 pub mod execution;
 pub mod instruction_decode;
@@ -9,6 +8,7 @@ pub mod ram;
 pub mod registers;
 pub mod rom;
 pub mod writeback;
+pub mod memory;
 
 pub type Byte = u8;
 pub type Word = u16;
@@ -18,13 +18,14 @@ pub type Data = Byte;
 #[derive(Debug, PartialEq, Eq)]
 pub enum Error {
     AddressOutOfRange(Address),
-    InvalidAddress(Address),
     InvalidAddressingMode,
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
 
 pub trait Memory {
+    fn length(&self) -> usize;
+
     fn read_byte(&self, address: Address) -> Result<Byte>;
     fn read_word(&self, address: Address) -> Result<Word>;
 
@@ -33,7 +34,7 @@ pub trait Memory {
 }
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Opcode {
     ADC,
     AND,
@@ -156,7 +157,7 @@ pub trait AddressDispatcher<M>
 where
     M: Memory,
 {
-    fn dispatch(
+    fn get_address(
         &self,
         mode: &AddressingMode,
         memory: &M,
@@ -168,7 +169,7 @@ pub trait DataDispatcher<M>
 where
     M: Memory,
 {
-    fn dispatch(
+    fn get_data(
         &self,
         mode: &AddressingMode,
         memory: &M,

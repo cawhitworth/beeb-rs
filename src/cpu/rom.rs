@@ -11,6 +11,10 @@ impl Rom {
 }
 
 impl Memory for Rom {
+    fn length(&self) -> usize {
+        self.memory.len()
+    }
+
     fn read_byte(&self, address: Address) -> Result<Byte> {
         if address > self.memory.len() as u16 {
             return Err(Error::AddressOutOfRange(address));

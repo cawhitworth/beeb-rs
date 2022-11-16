@@ -9,7 +9,7 @@ pub struct Registers {
     pub x: Data,
     pub y: Data,
 
-    pc_next: Address,
+    pub pc_next: Address,
     ps: Data,
 }
 

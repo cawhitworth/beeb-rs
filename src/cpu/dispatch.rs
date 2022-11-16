@@ -1,6 +1,6 @@
 use crate::cpu::registers::Registers;
 use crate::cpu::{
-    Address, AddressDispatcher, AddressingMode, Data, DataDispatcher, Error, InstructionDecoder,
+    AddressDispatcher, DataDispatcher, InstructionDecoder,
     Memory, Result,
 };
 
@@ -8,7 +8,7 @@ use crate::cpu::ExecutionUnit;
 
 use super::WritebackUnit;
 
-pub struct Dispatcher<I, A, D, M, E, W>
+pub struct Dispatcher<'a, I, A, D, M, E, W>
 where
     I: InstructionDecoder,
     M: Memory,
@@ -17,16 +17,16 @@ where
     E: ExecutionUnit<M>,
     W: WritebackUnit<M>,
 {
-    instruction_decoder: I,
-    address_dispatcher: A,
-    data_dispatcher: D,
-    memory: M,
-    registers: Registers,
-    execution_unit: E,
-    writeback_unit: W,
+    instruction_decoder: &'a I,
+    address_dispatcher: &'a A,
+    data_dispatcher: &'a D,
+    memory: &'a mut M,
+    registers: &'a mut Registers,
+    execution_unit: &'a E,
+    writeback_unit: &'a W,
 }
 
-impl<I, A, D, M, E, W> Dispatcher<I, A, D, M, E, W>
+impl<'a, I, A, D, M, E, W> Dispatcher<'a, I, A, D, M, E, W>
 where
     I: InstructionDecoder,
     M: Memory,
@@ -36,13 +36,13 @@ where
     W: WritebackUnit<M>,
 {
     pub fn new(
-        registers: Registers,
-        memory: M,
-        instruction_decoder: I,
-        address_dispatcher: A,
-        data_dispatcher: D,
-        execution_unit: E,
-        writeback_unit: W,
+        registers: &'a mut Registers,
+        memory: &'a mut M,
+        instruction_decoder: &'a I,
+        address_dispatcher: &'a A,
+        data_dispatcher: &'a D,
+        execution_unit: &'a E,
+        writeback_unit: &'a W,
     ) -> Self {
         Dispatcher {
             instruction_decoder,
@@ -59,12 +59,16 @@ where
         let opcode = self.memory.read_byte(self.registers.pc)?;
         let instruction = self.instruction_decoder.decode(opcode)?;
 
-        let address = self.address_dispatcher.dispatch(
+        if instruction.opcode != crate::cpu::Opcode::Invalid {
+        self.registers.pc_next = self.registers.pc + instruction.byte_length as u16;
+
+        let address = self.address_dispatcher.get_address(
             &instruction.addressing_mode,
             &self.memory,
             &self.registers,
         )?;
-        let data = self.data_dispatcher.dispatch(
+
+        let data = self.data_dispatcher.get_data(
             &instruction.addressing_mode,
             &self.memory,
             &self.registers,
@@ -87,6 +91,11 @@ where
                 &mut self.registers,
             )?;
         }
+
+        self.registers.pc = self.registers.pc_next;
+    } else {
+        self.registers.pc += 1;
+    }
 
         Ok(())
     }

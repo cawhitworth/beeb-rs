@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::cpu::{registers::Registers, Address, Data, Error, Memory, Result, Writeback};
+use crate::cpu::{registers::Registers, Address, Data, Memory, Result, Writeback};
 
 pub struct WritebackUnit<M> {
     phantom: PhantomData<M>,
@@ -23,11 +23,11 @@ where
 {
     fn writeback(
         &self,
-        writeback: &Writeback,
-        data: Option<Data>,
-        address: Option<Address>,
-        memory: &mut M,
-        registers: &mut Registers,
+        _writeback: &Writeback,
+        _data: Option<Data>,
+        _address: Option<Address>,
+        _memory: &mut M,
+        _registers: &mut Registers,
     ) -> Result<()> {
         todo!()
     }

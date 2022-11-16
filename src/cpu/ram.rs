@@ -16,6 +16,10 @@ impl Ram {
 }
 
 impl Memory for Ram {
+    fn length(&self) -> usize {
+        self.memory.len()
+    }
+
     fn read_byte(&self, address: Address) -> Result<Byte> {
         let uaddr = address as usize;
         if uaddr >= self.memory.len() {
