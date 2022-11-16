@@ -101,7 +101,7 @@ mod tests {
         let ram = Ram::new(0x10000);
         let rom = Rom::new(vec![0; 0x100]);
 
-        let overlay_mem = OverlayMemory::new(ram, rom, 0xff00);
+        let _overlay_mem = OverlayMemory::new(ram, rom, 0xff00);
     }
 
     #[test]
@@ -110,7 +110,7 @@ mod tests {
         let ram = Ram::new(0x10000);
         let rom = Rom::new(vec![0; 0x101]);
 
-        let overlay_mem = OverlayMemory::new(ram, rom, 0xff00);
+        let _overlay_mem = OverlayMemory::new(ram, rom, 0xff00);
     }
 
     #[test]

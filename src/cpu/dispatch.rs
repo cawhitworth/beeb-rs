@@ -85,10 +85,13 @@ where
             }
 
             self.registers.pc = self.registers.pc_next;
+            Ok(())
         } else {
-            self.registers.pc += 1;
+            Err(crate::cpu::Error::InvalidInstruction(opcode))
         }
+    }
 
-        Ok(())
+    pub fn registers(&mut self) -> &mut Registers {
+        &mut self.registers
     }
 }

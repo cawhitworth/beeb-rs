@@ -19,6 +19,7 @@ pub type Data = Byte;
 pub enum Error {
     AddressOutOfRange(Address),
     InvalidAddressingMode,
+    InvalidInstruction(Data),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;

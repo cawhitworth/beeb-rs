@@ -37,18 +37,17 @@ fn main() -> cpu::Result<()> {
         writeback_unit,
     );
 
-    cpu.dispatch()?;
-    cpu.dispatch()?;
-    cpu.dispatch()?;
-    cpu.dispatch()?;
-    cpu.dispatch()?;
-    cpu.dispatch()?;
-    cpu.dispatch()?;
-    cpu.dispatch()?;
-    cpu.dispatch()?;
-    cpu.dispatch()?;
-    cpu.dispatch()?;
-    cpu.dispatch()?;
-
-    Ok(())
+    loop {
+        let r = cpu.dispatch();
+        if let Err(e) = r {
+            match e {
+                cpu::Error::InvalidInstruction(_) => {
+                    cpu.registers().pc += 1;
+                }
+                _ => {
+                    return Err(e);
+                }
+            }
+        }
+    }
 }
