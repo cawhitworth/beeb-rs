@@ -3,7 +3,7 @@ use crate::cpu::{AddressDataDispatcher, InstructionDecoder, Memory, Opcode, Resu
 
 use crate::cpu::ExecutionUnit;
 
-use super::{Error, ErrorType, ExecutionResult, WritebackUnit};
+use super::{ExecutionResult, WritebackUnit};
 
 pub struct Dispatcher<I, A, M, E, W>
 where
@@ -52,7 +52,7 @@ where
         let instruction = self.instruction_decoder.decode(opcode)?;
 
         match instruction.opcode {
-            Opcode::Invalid(o) => {
+            Opcode::Invalid(_) => {
                 self.registers.pc_next = self.registers.pc + 1;
 
                 let result = self.execution_unit.execute(
@@ -65,11 +65,8 @@ where
 
                 self.registers.pc = self.registers.pc_next;
 
-                if let Err(e) = result {
-                    Err(e)
-                } else {
-                    Ok(())
-                }
+                result?;
+                Ok(())
             }
             _ => {
                 self.registers.pc_next = self.registers.pc + instruction.byte_length as u16;
@@ -108,9 +105,5 @@ where
                 Ok(())
             }
         }
-    }
-
-    pub fn registers(&mut self) -> &mut Registers {
-        &mut self.registers
     }
 }

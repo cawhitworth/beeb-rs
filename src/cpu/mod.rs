@@ -227,7 +227,7 @@ where
     ) -> Result<Option<Data>>;
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub enum ExecutionResult {
     Data(Data),
     Address(Address),

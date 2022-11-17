@@ -11,7 +11,6 @@ use disassembler::execution::ExecutionUnit;
 use cpu::memory::OverlayMemory;
 use cpu::ram::Ram;
 use cpu::rom::Rom;
-use cpu::{Error, ErrorType};
 
 fn main() -> cpu::Result<()> {
     let mut registers = cpu::registers::Registers::new();
@@ -39,6 +38,6 @@ fn main() -> cpu::Result<()> {
     );
 
     loop {
-        let r = cpu.dispatch()?;
+        cpu.dispatch()?;
     }
 }

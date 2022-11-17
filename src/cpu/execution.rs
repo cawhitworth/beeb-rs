@@ -35,10 +35,9 @@ where
         match opcode {
             Opcode::ADC => {
                 if let Some(d) = data {
-                    let result: u16 =
-                        registers.a as u16 + d as u16 + if registers.carry() { 1 } else { 0 };
+                    let result: u16 = registers.a as u16 + d as u16 + u16::from(registers.carry());
                     registers.write_flag(StatusBits::Neg, result & 0x80 == 0x80);
-                    registers.write_flag(StatusBits::Zero, result & 0xff == 0);
+                    registers.write_flag(StatusBits::Zero, result == 0);
                     registers.write_flag(StatusBits::Carry, result > 255);
 
                     Ok(ExecutionResult::Data((result & 0xff) as u8))
@@ -50,7 +49,7 @@ where
                 if let Some(d) = data {
                     let result = registers.a & d;
                     registers.write_flag(StatusBits::Neg, result & 0x80 == 0x80);
-                    registers.write_flag(StatusBits::Zero, result & 0xff == 0);
+                    registers.write_flag(StatusBits::Zero, result == 0);
                     Ok(ExecutionResult::Data(result))
                 } else {
                     Err(Error::with_pc(registers.pc, ErrorType::MissingData))
@@ -62,7 +61,7 @@ where
 
                     let result = d << 1;
                     registers.write_flag(StatusBits::Neg, result & 0x80 == 0x80);
-                    registers.write_flag(StatusBits::Zero, result & 0xff == 0);
+                    registers.write_flag(StatusBits::Zero, result == 0);
                     Ok(ExecutionResult::Data(result))
                 } else {
                     Err(Error::with_pc(registers.pc, ErrorType::MissingData))
@@ -151,7 +150,7 @@ where
             Opcode::TXA => todo!(),
             Opcode::TXS => todo!(),
             Opcode::TYA => todo!(),
-            Opcode::Invalid(o) => todo!(),
+            Opcode::Invalid(_) => todo!(),
         }
     }
 }

@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::cpu::{registers::Registers, Address, Data, Memory, Result, Writeback};
+use crate::cpu::{registers::Registers, Address, Memory, Result, Writeback};
 
 use super::ExecutionResult;
 
