@@ -37,7 +37,7 @@ where
                 if let Some(d) = data {
                     let result: u16 = registers.a as u16 + d as u16 + u16::from(registers.carry());
                     registers.write_flag(StatusBits::Neg, result & 0x80 == 0x80);
-                    registers.write_flag(StatusBits::Zero, result == 0);
+                    registers.write_flag(StatusBits::Zero, result & 0xff == 0);
                     registers.write_flag(StatusBits::Carry, result > 255);
 
                     Ok(ExecutionResult::Data((result & 0xff) as u8))
@@ -198,9 +198,9 @@ mod tests {
                 execution_unit.execute(&Opcode::ADC, Some(data), None, &memory, &mut registers)?;
 
             assert_eq!(result, ExecutionResult::Data(expected_result), "{}", case);
-            assert_eq!(registers.carry(), carry, "{}", case);
-            assert_eq!(registers.zero(), zero, "{}", case);
-            assert_eq!(registers.negative(), neg, "{}", case);
+            assert_eq!(registers.carry(), carry, "C: {}", case);
+            assert_eq!(registers.zero(), zero, "Z: {}", case);
+            assert_eq!(registers.negative(), neg, "N: {}", case);
         }
 
         Ok(())
