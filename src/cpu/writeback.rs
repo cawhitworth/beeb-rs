@@ -2,6 +2,8 @@ use std::marker::PhantomData;
 
 use crate::cpu::{registers::Registers, Address, Data, Memory, Result, Writeback};
 
+use super::ExecutionResult;
+
 pub struct WritebackUnit<M> {
     phantom: PhantomData<M>,
 }
@@ -24,7 +26,7 @@ where
     fn writeback(
         &self,
         _writeback: &Writeback,
-        _data: Option<Data>,
+        _data: ExecutionResult,
         _address: Option<Address>,
         _memory: &mut M,
         _registers: &mut Registers,

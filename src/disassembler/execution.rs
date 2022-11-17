@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::cpu::{registers::Registers, Address, Data, Memory, Opcode, Result};
+use crate::cpu::{registers::Registers, Address, Data, ExecutionResult, Memory, Opcode, Result};
 
 pub struct ExecutionUnit<M> {
     phantom: PhantomData<M>,
@@ -28,7 +28,7 @@ where
         address: Option<Address>,
         _memory: &M,
         registers: &mut Registers,
-    ) -> Result<Option<Data>> {
+    ) -> Result<ExecutionResult> {
         let mut diss = format!("{:04x} : ", registers.pc);
 
         match opcode {
@@ -47,6 +47,6 @@ where
             diss += &format!(" #{:x}", d)
         }
         println!("{}", diss);
-        Ok(None)
+        Ok(ExecutionResult::None)
     }
 }

@@ -23,6 +23,7 @@ pub enum ErrorType {
     InvalidAddressingMode,
     InvalidInstruction(Byte),
     MissingData,
+    MissingAddress,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -51,21 +52,24 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.error_type {
             ErrorType::AddressOutOfRange(addr) => {
-                f.write_fmt(format_args!("Address out of range (0x{:04x})", addr));
+                f.write_fmt(format_args!("Address out of range (0x{:04x})", addr))?;
             }
             ErrorType::InvalidAddressingMode => {
-                f.write_fmt(format_args!("Invalid addressing mode"));
+                f.write_fmt(format_args!("Invalid addressing mode"))?;
             }
             ErrorType::InvalidInstruction(opcode) => {
-                f.write_fmt(format_args!("Invalid instruction ({:02x})", opcode));
+                f.write_fmt(format_args!("Invalid instruction ({:02x})", opcode))?;
             }
             ErrorType::MissingData => {
-                f.write_fmt(format_args!("Missing data"));
+                f.write_fmt(format_args!("Missing data"))?;
+            }
+            ErrorType::MissingAddress => {
+                f.write_fmt(format_args!("Missing address"))?;
             }
         }
 
         if let Some(pc) = self.pc {
-            f.write_fmt(format_args!(" at 0x{:04x}", pc));
+            f.write_fmt(format_args!(" at 0x{:04x}", pc))?;
         }
 
         Ok(())
@@ -223,6 +227,13 @@ where
     ) -> Result<Option<Data>>;
 }
 
+#[derive(PartialEq, Debug)]
+pub enum ExecutionResult {
+    Data(Data),
+    Address(Address),
+    None,
+}
+
 pub trait ExecutionUnit<M>
 where
     M: Memory,
@@ -234,7 +245,7 @@ where
         address: Option<Address>,
         memory: &M,
         registers: &mut Registers,
-    ) -> Result<Option<Data>>;
+    ) -> Result<ExecutionResult>;
 }
 
 pub trait WritebackUnit<M>
@@ -244,7 +255,7 @@ where
     fn writeback(
         &self,
         target: &Writeback,
-        data: Option<Data>,
+        data: ExecutionResult,
         address: Option<Address>,
         memory: &mut M,
         registers: &mut Registers,

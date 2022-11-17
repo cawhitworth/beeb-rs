@@ -3,7 +3,7 @@ use crate::cpu::{AddressDataDispatcher, InstructionDecoder, Memory, Opcode, Resu
 
 use crate::cpu::ExecutionUnit;
 
-use super::{Error, ErrorType, WritebackUnit};
+use super::{Error, ErrorType, ExecutionResult, WritebackUnit};
 
 pub struct Dispatcher<I, A, M, E, W>
 where
@@ -94,7 +94,7 @@ where
                     &mut self.registers,
                 )?;
 
-                if result.is_some() {
+                if result != ExecutionResult::None {
                     self.writeback_unit.writeback(
                         &instruction.writeback,
                         result,
