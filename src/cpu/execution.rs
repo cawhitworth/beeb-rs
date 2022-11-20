@@ -100,7 +100,18 @@ where
                     Ok(ExecutionResult::None)
                 }
             }
-            Opcode::BIT => todo!(),
+            Opcode::BIT => {
+                if let Some(d) = data {
+                    let result = registers.a & d;
+                    registers.write_flag(StatusBits::Neg, d & 0x80 == 0x80);
+                    registers.write_flag(StatusBits::Ovf, d & 0x40 == 0x40);
+                    registers.write_flag(StatusBits::Zero, result == 0);
+
+                    Ok(ExecutionResult::None)
+                } else {
+                    Err(Error::with_pc(registers.pc, ErrorType::MissingData))
+                }
+            }
             Opcode::BMI => todo!(),
             Opcode::BNE => todo!(),
             Opcode::BPL => todo!(),
@@ -378,6 +389,35 @@ mod tests {
             )?;
 
             assert_eq!(result, expected_result, "{}", case);
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn bit() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let memory = Ram::new(1);
+        let mut registers = Registers::new();
+
+        let test_cases = vec![
+            // acc, data, N, O, Z
+            (0x00, 0x00, false, false, true),
+            (0x01, 0x01, false, false, false),
+            (0x00, 0xff, true, true, true),
+            (0x80, 0x80, true, false, false),
+            (0x00, 0x40, false, true, true),
+        ];
+
+        for (acc, data, neg, ovf, zero) in test_cases {
+            let case = format!("BIT {} A {} => N {} O {} Z {}", data, acc, neg, ovf, zero);
+
+            registers.a = acc;
+            execution_unit.execute(&Opcode::BIT, Some(data), None, &memory, &mut registers);
+
+            assert_eq!(registers.negative(), neg, "N: {}", case);
+            assert_eq!(registers.overflow(), ovf, "O: {}", case);
+            assert_eq!(registers.zero(), zero, "Z: {}", case);
         }
 
         Ok(())
