@@ -112,8 +112,28 @@ where
                     Err(Error::with_pc(registers.pc, ErrorType::MissingData))
                 }
             }
-            Opcode::BMI => todo!(),
-            Opcode::BNE => todo!(),
+            Opcode::BMI => {
+                if registers.negative() {
+                    if let Some(a) = address {
+                        Ok(ExecutionResult::Address(a))
+                    } else {
+                        Err(Error::with_pc(registers.pc, ErrorType::MissingAddress))
+                    }
+                } else {
+                    Ok(ExecutionResult::None)
+                }
+            }
+            Opcode::BNE => {
+                if !registers.zero() {
+                    if let Some(a) = address {
+                        Ok(ExecutionResult::Address(a))
+                    } else {
+                        Err(Error::with_pc(registers.pc, ErrorType::MissingAddress))
+                    }
+                } else {
+                    Ok(ExecutionResult::None)
+                }
+            }
             Opcode::BPL => todo!(),
             Opcode::BRK => todo!(),
             Opcode::BVC => todo!(),
@@ -338,7 +358,7 @@ mod tests {
 
         for (address, carry, expected_result) in test_cases {
             let case = format!(
-                "BCC {} (carry {}) = {:?}",
+                "BCS {} (carry {}) = {:?}",
                 address,
                 if carry { "set" } else { "unset" },
                 expected_result
@@ -373,7 +393,7 @@ mod tests {
 
         for (address, zero, expected_result) in test_cases {
             let case = format!(
-                "BCC {} (carry {}) = {:?}",
+                "BEQ {} (Z {}) = {:?}",
                 address,
                 if zero { "set" } else { "unset" },
                 expected_result
@@ -413,11 +433,81 @@ mod tests {
             let case = format!("BIT {} A {} => N {} O {} Z {}", data, acc, neg, ovf, zero);
 
             registers.a = acc;
-            execution_unit.execute(&Opcode::BIT, Some(data), None, &memory, &mut registers);
+            execution_unit.execute(&Opcode::BIT, Some(data), None, &memory, &mut registers)?;
 
             assert_eq!(registers.negative(), neg, "N: {}", case);
             assert_eq!(registers.overflow(), ovf, "O: {}", case);
             assert_eq!(registers.zero(), zero, "Z: {}", case);
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn bmi() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let memory = Ram::new(1);
+        let mut registers = Registers::new();
+
+        let test_cases = vec![
+            // addr, neg, expected result
+            (0x1234, false, ExecutionResult::None),
+            (0x1234, true, ExecutionResult::Address(0x1234)),
+        ];
+
+        for (address, neg, expected_result) in test_cases {
+            let case = format!(
+                "BMI {} (N {}) = {:?}",
+                address,
+                if neg { "set" } else { "unset" },
+                expected_result
+            );
+            registers.write_flag(StatusBits::Neg, neg);
+
+            let result = execution_unit.execute(
+                &Opcode::BMI,
+                None,
+                Some(address),
+                &memory,
+                &mut registers,
+            )?;
+
+            assert_eq!(result, expected_result, "{}", case);
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn bne() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let memory = Ram::new(1);
+        let mut registers = Registers::new();
+
+        let test_cases = vec![
+            // addr, zero, expected result
+            (0x1234, true, ExecutionResult::None),
+            (0x1234, false, ExecutionResult::Address(0x1234)),
+        ];
+
+        for (address, zero, expected_result) in test_cases {
+            let case = format!(
+                "BNE {} (Z {}) = {:?}",
+                address,
+                if zero { "set" } else { "unset" },
+                expected_result
+            );
+            registers.write_flag(StatusBits::Zero, zero);
+
+            let result = execution_unit.execute(
+                &Opcode::BNE,
+                None,
+                Some(address),
+                &memory,
+                &mut registers,
+            )?;
+
+            assert_eq!(result, expected_result, "{}", case);
         }
 
         Ok(())
