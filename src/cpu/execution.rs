@@ -134,7 +134,17 @@ where
                     Ok(ExecutionResult::None)
                 }
             }
-            Opcode::BPL => todo!(),
+            Opcode::BPL => {
+                if !registers.negative() {
+                    if let Some(a) = address {
+                        Ok(ExecutionResult::Address(a))
+                    } else {
+                        Err(Error::with_pc(registers.pc, ErrorType::MissingAddress))
+                    }
+                } else {
+                    Ok(ExecutionResult::None)
+                }
+            }
             Opcode::BRK => todo!(),
             Opcode::BVC => todo!(),
             Opcode::BVS => todo!(),
@@ -512,4 +522,40 @@ mod tests {
 
         Ok(())
     }
+    #[test]
+
+    fn bpl() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let memory = Ram::new(1);
+        let mut registers = Registers::new();
+
+        let test_cases = vec![
+            // addr, neg, expected result
+            (0x1234, true, ExecutionResult::None),
+            (0x1234, false, ExecutionResult::Address(0x1234)),
+        ];
+
+        for (address, neg, expected_result) in test_cases {
+            let case = format!(
+                "BPL {} (N {}) = {:?}",
+                address,
+                if neg { "set" } else { "unset" },
+                expected_result
+            );
+            registers.write_flag(StatusBits::Neg, neg);
+
+            let result = execution_unit.execute(
+                &Opcode::BPL,
+                None,
+                Some(address),
+                &memory,
+                &mut registers,
+            )?;
+
+            assert_eq!(result, expected_result, "{}", case);
+        }
+
+        Ok(())
+    }
+
 }
