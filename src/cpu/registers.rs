@@ -10,7 +10,7 @@ pub struct Registers {
     pub y: Data,
 
     pub pc_next: Address,
-    ps: Data,
+    pub ps: Data,
 }
 
 #[repr(u8)]

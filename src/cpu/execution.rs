@@ -1,13 +1,15 @@
 use std::marker::PhantomData;
 
 use crate::cpu::{
-    registers::Registers, registers::StatusBits, Address, Data, Error, ErrorType, ExecutionResult,
+    registers::Registers, registers::StatusBits, Byte, Word, Address, Data, Error, ErrorType, ExecutionResult,
     Memory, Opcode, Result,
 };
 
 pub struct ExecutionUnit<M> {
     phantom: PhantomData<M>,
 }
+
+const STACK_BASE: Address = 0x100;
 
 impl<M> ExecutionUnit<M>
 where
@@ -18,6 +20,39 @@ where
             phantom: PhantomData,
         }
     }
+
+    fn push_byte(
+        &self, value: Byte, memory: &mut M, registers: &mut Registers
+    ) -> Result<()> {
+        memory.write_byte(registers.sp as Address + STACK_BASE, value)?;
+        registers.sp = registers.sp.wrapping_sub(1);
+        Ok(())
+    }
+
+    fn push_word(
+        &self, value: Word, memory: &mut M, registers: &mut Registers
+    ) -> Result<()> {
+        self.push_byte((value >> 8) as Byte, memory, registers)?;
+        self.push_byte((value & 0xff) as Byte, memory, registers)?;
+        Ok(())
+    }
+
+    fn pop_byte(
+        &self, memory: &mut M, registers: &mut Registers
+    ) -> Result<Byte> {
+        registers.sp = registers.sp.wrapping_add(1);
+        memory.read_byte(registers.sp as Address + STACK_BASE)
+    }
+
+    fn pop_word(
+        &self, memory: &mut M, registers: &mut Registers
+    ) -> Result<Word> {
+        let lsb = self.pop_byte(memory, registers)? as Word;
+        let msb = self.pop_byte(memory, registers)? as Word;
+        Ok(lsb + (msb << 8))
+    }
+
+
 }
 
 impl<M> crate::cpu::ExecutionUnit<M> for ExecutionUnit<M>
@@ -29,7 +64,7 @@ where
         opcode: &Opcode,
         data: Option<Data>,
         address: Option<Address>,
-        memory: &M,
+        memory: &mut M,
         registers: &mut Registers,
     ) -> Result<ExecutionResult> {
         match opcode {
@@ -145,9 +180,36 @@ where
                     Ok(ExecutionResult::None)
                 }
             }
-            Opcode::BRK => todo!(),
-            Opcode::BVC => todo!(),
-            Opcode::BVS => todo!(),
+            Opcode::BRK => {
+                registers.write_flag(StatusBits::Brk, true);
+                self.push_word(registers.pc + 2, memory, registers)?;
+                self.push_byte(registers.ps, memory, registers)?;
+                let a = memory.read_word(0xfffe)?;
+                Ok(ExecutionResult::Address(a))
+            }
+            Opcode::BVC => 
+            {
+                if !registers.overflow() {
+                    if let Some(a) = address {
+                        Ok(ExecutionResult::Address(a))
+                    } else {
+                        Err(Error::with_pc(registers.pc, ErrorType::MissingAddress))
+                    }
+                } else {
+                    Ok(ExecutionResult::None)
+                }
+            }
+            Opcode::BVS => {
+                if registers.overflow() {
+                    if let Some(a) = address {
+                        Ok(ExecutionResult::Address(a))
+                    } else {
+                        Err(Error::with_pc(registers.pc, ErrorType::MissingAddress))
+                    }
+                } else {
+                    Ok(ExecutionResult::None)
+                }
+            }
             Opcode::CLC => todo!(),
             Opcode::CLD => todo!(),
             Opcode::CLI => todo!(),
@@ -207,9 +269,149 @@ mod tests {
     }
 
     #[test]
+    fn push_byte_succeeds() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(0x10000);
+        let mut registers = Registers::new();
+       
+        registers.sp = 0xff;
+        let _ = execution_unit.push_byte(0xde, &mut memory, &mut registers)?;
+
+        assert_eq!(registers.sp, 0xfe);
+        let b = memory.read_byte(0x1ff)?;
+
+        assert_eq!(b, 0xde);
+
+        Ok(())
+    }
+
+    #[test]
+    fn push_byte_overflow_succeeds() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(0x10000);
+        let mut registers = Registers::new();
+       
+        registers.sp = 0x00;
+        let _ = execution_unit.push_byte(0xde, &mut memory, &mut registers)?;
+
+        assert_eq!(registers.sp, 0xff);
+        let b = memory.read_byte(0x100)?;
+
+        assert_eq!(b, 0xde);
+
+        Ok(())
+    }
+
+    #[test]
+    fn push_word_succeeds() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(0x10000);
+        let mut registers = Registers::new();
+        
+        registers.sp = 0xff;
+        let _ = execution_unit.push_word(0xdead, &mut memory, &mut registers)?;
+
+        assert_eq!(registers.sp, 0xfd);
+        let lsb = memory.read_byte(0x1ff)?;
+        let msb = memory.read_byte(0x1fe)?;
+
+        assert_eq!(lsb, 0xde);
+        assert_eq!(msb, 0xad);
+
+        Ok(())
+    }
+    
+    #[test]
+    fn push_word_overflow_succeeds() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(0x10000);
+        let mut registers = Registers::new();
+        
+        registers.sp = 0x01;
+        let _ = execution_unit.push_word(0xdead, &mut memory, &mut registers)?;
+
+        assert_eq!(registers.sp, 0xff);
+        let lsb = memory.read_byte(0x101)?;
+        let msb = memory.read_byte(0x100)?;
+
+        assert_eq!(lsb, 0xde);
+        assert_eq!(msb, 0xad);
+
+        Ok(())
+    }
+
+    #[test]
+    fn pop_byte_succeeds() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(0x10000);
+        let mut registers = Registers::new();
+        memory.write_byte(0x1ff, 0xde)?;
+        registers.sp = 0xfe;
+        let b = execution_unit.pop_byte(&mut memory, &mut registers)?;
+
+        assert_eq!(registers.sp, 0xff);
+        assert_eq!(b, 0xde);
+
+        Ok(())
+    }
+    
+    #[test]
+    fn pop_byte_underflow_succeeds() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(0x10000);
+        let mut registers = Registers::new();
+
+        memory.write_byte(0x100, 0xde)?;
+        
+        registers.sp = 0xff;
+        let b = execution_unit.pop_byte(&mut memory, &mut registers)?;
+
+        assert_eq!(registers.sp, 0x00);
+        assert_eq!(b, 0xde);
+
+        Ok(())
+    }
+    
+    #[test]
+    fn pop_word_succeeds() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(0x10000);
+        let mut registers = Registers::new();
+       
+        memory.write_byte(0x1ff, 0xde)?;
+        memory.write_byte(0x1fe, 0xad)?;
+
+        registers.sp = 0xfd;
+        let r = execution_unit.pop_word(&mut memory, &mut registers)?;
+
+        assert_eq!(registers.sp, 0xff);
+        assert_eq!(r, 0xdead);
+
+        Ok(())
+    }
+    
+    #[test]
+    fn pop_word_underflow_succeeds() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(0x10000);
+        let mut registers = Registers::new();
+       
+        memory.write_byte(0x100, 0xde)?;
+        memory.write_byte(0x1ff, 0xad)?;
+
+        registers.sp = 0xfe;
+        let r = execution_unit.pop_word(&mut memory, &mut registers)?;
+
+        assert_eq!(registers.sp, 0x00);
+        assert_eq!(r, 0xdead);
+
+        Ok(())
+    }
+
+    #[test]
     fn adc() -> Result<()> {
         let execution_unit = super::ExecutionUnit::new();
-        let memory = Ram::new(1);
+        let mut memory = Ram::new(1);
         let mut registers = Registers::new();
 
         let test_cases = vec![
@@ -236,7 +438,7 @@ mod tests {
             registers.a = acc;
 
             let result =
-                execution_unit.execute(&Opcode::ADC, Some(data), None, &memory, &mut registers)?;
+                execution_unit.execute(&Opcode::ADC, Some(data), None, &mut memory, &mut registers)?;
 
             assert_eq!(result, ExecutionResult::Data(expected_result), "{}", case);
             assert_eq!(registers.carry(), carry, "C: {}", case);
@@ -250,7 +452,7 @@ mod tests {
     #[test]
     fn and() -> Result<()> {
         let execution_unit = super::ExecutionUnit::new();
-        let memory = Ram::new(1);
+        let mut memory = Ram::new(1);
         let mut registers = Registers::new();
 
         let test_cases = vec![
@@ -274,7 +476,7 @@ mod tests {
             registers.a = acc;
 
             let result =
-                execution_unit.execute(&Opcode::AND, Some(data), None, &memory, &mut registers)?;
+                execution_unit.execute(&Opcode::AND, Some(data), None, &mut memory, &mut registers)?;
 
             assert_eq!(result, ExecutionResult::Data(expected_result), "{}", case);
             assert_eq!(registers.zero(), zero, "{}", case);
@@ -287,7 +489,7 @@ mod tests {
     #[test]
     fn asl() -> Result<()> {
         let execution_unit = super::ExecutionUnit::new();
-        let memory = Ram::new(1);
+        let mut memory = Ram::new(1);
         let mut registers = Registers::new();
 
         let test_cases = vec![
@@ -309,7 +511,7 @@ mod tests {
             );
 
             let result =
-                execution_unit.execute(&Opcode::ASL, Some(data), None, &memory, &mut registers)?;
+                execution_unit.execute(&Opcode::ASL, Some(data), None, &mut memory, &mut registers)?;
 
             assert_eq!(result, ExecutionResult::Data(expected_result), "{}", case);
             assert_eq!(registers.carry(), carry, "{}", case);
@@ -322,7 +524,7 @@ mod tests {
     #[test]
     fn bcc() -> Result<()> {
         let execution_unit = super::ExecutionUnit::new();
-        let memory = Ram::new(1);
+        let mut memory = Ram::new(1);
         let mut registers = Registers::new();
 
         let test_cases = vec![
@@ -344,7 +546,7 @@ mod tests {
                 &Opcode::BCC,
                 None,
                 Some(address),
-                &memory,
+                &mut memory,
                 &mut registers,
             )?;
 
@@ -357,7 +559,7 @@ mod tests {
     #[test]
     fn bcs() -> Result<()> {
         let execution_unit = super::ExecutionUnit::new();
-        let memory = Ram::new(1);
+        let mut memory = Ram::new(1);
         let mut registers = Registers::new();
 
         let test_cases = vec![
@@ -379,7 +581,7 @@ mod tests {
                 &Opcode::BCS,
                 None,
                 Some(address),
-                &memory,
+                &mut memory,
                 &mut registers,
             )?;
 
@@ -392,7 +594,7 @@ mod tests {
     #[test]
     fn beq() -> Result<()> {
         let execution_unit = super::ExecutionUnit::new();
-        let memory = Ram::new(1);
+        let mut memory = Ram::new(1);
         let mut registers = Registers::new();
 
         let test_cases = vec![
@@ -414,7 +616,7 @@ mod tests {
                 &Opcode::BEQ,
                 None,
                 Some(address),
-                &memory,
+                &mut memory,
                 &mut registers,
             )?;
 
@@ -427,7 +629,7 @@ mod tests {
     #[test]
     fn bit() -> Result<()> {
         let execution_unit = super::ExecutionUnit::new();
-        let memory = Ram::new(1);
+        let mut memory = Ram::new(1);
         let mut registers = Registers::new();
 
         let test_cases = vec![
@@ -443,7 +645,7 @@ mod tests {
             let case = format!("BIT {} A {} => N {} O {} Z {}", data, acc, neg, ovf, zero);
 
             registers.a = acc;
-            execution_unit.execute(&Opcode::BIT, Some(data), None, &memory, &mut registers)?;
+            execution_unit.execute(&Opcode::BIT, Some(data), None, &mut memory, &mut registers)?;
 
             assert_eq!(registers.negative(), neg, "N: {}", case);
             assert_eq!(registers.overflow(), ovf, "O: {}", case);
@@ -456,7 +658,7 @@ mod tests {
     #[test]
     fn bmi() -> Result<()> {
         let execution_unit = super::ExecutionUnit::new();
-        let memory = Ram::new(1);
+        let mut memory = Ram::new(1);
         let mut registers = Registers::new();
 
         let test_cases = vec![
@@ -478,7 +680,7 @@ mod tests {
                 &Opcode::BMI,
                 None,
                 Some(address),
-                &memory,
+                &mut memory,
                 &mut registers,
             )?;
 
@@ -491,7 +693,7 @@ mod tests {
     #[test]
     fn bne() -> Result<()> {
         let execution_unit = super::ExecutionUnit::new();
-        let memory = Ram::new(1);
+        let mut memory = Ram::new(1);
         let mut registers = Registers::new();
 
         let test_cases = vec![
@@ -513,7 +715,7 @@ mod tests {
                 &Opcode::BNE,
                 None,
                 Some(address),
-                &memory,
+                &mut memory,
                 &mut registers,
             )?;
 
@@ -526,7 +728,7 @@ mod tests {
 
     fn bpl() -> Result<()> {
         let execution_unit = super::ExecutionUnit::new();
-        let memory = Ram::new(1);
+        let mut memory = Ram::new(1);
         let mut registers = Registers::new();
 
         let test_cases = vec![
@@ -548,7 +750,7 @@ mod tests {
                 &Opcode::BPL,
                 None,
                 Some(address),
-                &memory,
+                &mut memory,
                 &mut registers,
             )?;
 
@@ -558,4 +760,104 @@ mod tests {
         Ok(())
     }
 
+    #[test]
+    fn brk() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(0x10000);
+        let mut registers = Registers::new();
+
+        registers.write_flag(StatusBits::Brk, false);
+        registers.sp = 0xff;
+        registers.pc = 0xff00;
+        registers.write_flag(StatusBits::Neg, true);
+        memory.write_word(0xfffe, 0x1234)?;
+
+        let expected_ps = registers.ps | StatusBits::Brk as u8;
+        let expected_pc = registers.pc + 2;
+        let expected_sp = registers.sp.wrapping_sub(3);
+
+        let r = execution_unit.execute(&Opcode::BRK, None, None, &mut memory, &mut registers)?;
+
+        assert!(registers.brk());
+        assert_eq!(registers.sp, expected_sp);
+        assert_eq!(r, ExecutionResult::Address(0x1234));
+
+        let ps = execution_unit.pop_byte(&mut memory, &mut registers)?;
+        assert_eq!(ps, expected_ps);
+        let pc = execution_unit.pop_word(&mut memory, &mut registers)?;
+        assert_eq!(pc, expected_pc);
+
+        Ok(())
+
+    }
+
+    #[test]
+    fn bvc() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(1);
+        let mut registers = Registers::new();
+
+        let test_cases = vec![
+            // addr, ovf, expected result
+            (0x1234, true, ExecutionResult::None),
+            (0x1234, false, ExecutionResult::Address(0x1234)),
+        ];
+
+        for (address, ovf, expected_result) in test_cases {
+            let case = format!(
+                "BVC {} (N {}) = {:?}",
+                address,
+                if ovf { "set" } else { "unset" },
+                expected_result
+            );
+            registers.write_flag(StatusBits::Ovf, ovf);
+
+            let result = execution_unit.execute(
+                &Opcode::BVC,
+                None,
+                Some(address),
+                &mut memory,
+                &mut registers,
+            )?;
+
+            assert_eq!(result, expected_result, "{}", case);
+        }
+
+        Ok(())
+    }
+    
+    #[test]
+    fn bvs() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(1);
+        let mut registers = Registers::new();
+
+        let test_cases = vec![
+            // addr, ovf, expected result
+            (0x1234, false, ExecutionResult::None),
+            (0x1234, true, ExecutionResult::Address(0x1234)),
+        ];
+
+        for (address, ovf, expected_result) in test_cases {
+            let case = format!(
+                "BVS {} (N {}) = {:?}",
+                address,
+                if ovf { "set" } else { "unset" },
+                expected_result
+            );
+            registers.write_flag(StatusBits::Ovf, ovf);
+
+            let result = execution_unit.execute(
+                &Opcode::BVS,
+                None,
+                Some(address),
+                &mut memory,
+                &mut registers,
+            )?;
+
+            assert_eq!(result, expected_result, "{}", case);
+        }
+
+        Ok(())
+    }
 }

@@ -26,7 +26,7 @@ where
         opcode: &Opcode,
         data: Option<Data>,
         address: Option<Address>,
-        _memory: &M,
+        _memory: &mut M,
         registers: &mut Registers,
     ) -> Result<ExecutionResult> {
         let mut diss = format!("{:04x} : ", registers.pc);

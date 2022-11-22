@@ -59,7 +59,7 @@ where
                     &instruction.opcode,
                     None,
                     None,
-                    &self.memory,
+                    &mut self.memory,
                     &mut self.registers,
                 );
 
@@ -87,7 +87,7 @@ where
                     &instruction.opcode,
                     data,
                     address,
-                    &self.memory,
+                    &mut self.memory,
                     &mut self.registers,
                 )?;
 

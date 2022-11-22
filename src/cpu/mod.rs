@@ -23,7 +23,7 @@ pub enum ErrorType {
     InvalidAddressingMode,
     InvalidInstruction(Byte),
     MissingData,
-    MissingAddress,
+    MissingAddress
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -243,7 +243,7 @@ where
         opcode: &Opcode,
         data: Option<Data>,
         address: Option<Address>,
-        memory: &M,
+        memory: &mut M,
         registers: &mut Registers,
     ) -> Result<ExecutionResult>;
 }
