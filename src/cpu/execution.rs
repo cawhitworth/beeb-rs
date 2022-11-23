@@ -52,6 +52,12 @@ where
         Ok(lsb + (msb << 8))
     }
 
+    fn compare(&self, lhs: Byte, rhs: Byte, registers: &mut Registers) {
+        let result = rhs.wrapping_sub(lhs);
+        registers.write_flag(StatusBits::Neg, (result & 0x80) == 0x80);
+        registers.write_flag(StatusBits::Zero, result == 0x00);
+
+    }
 
 }
 
@@ -71,10 +77,14 @@ where
             Opcode::ADC => {
                 if let Some(d) = data {
                     let result: u16 = registers.a as u16 + d as u16 + u16::from(registers.carry());
-                    registers.write_flag(StatusBits::Neg, result & 0x80 == 0x80);
+                    let sign_a = registers.a & 0x80 == 0x80;
+                    let sign_d = d & 0x80 == 0x80;
+                    let sign_r = result & 0x80 == 0x80;
+
+                    registers.write_flag(StatusBits::Neg, sign_r);
                     registers.write_flag(StatusBits::Zero, result & 0xff == 0);
                     registers.write_flag(StatusBits::Carry, result > 255);
-
+                    registers.write_flag(StatusBits::Ovf, (sign_a == sign_d) && (sign_a != sign_r));
                     Ok(ExecutionResult::Data((result & 0xff) as u8))
                 } else {
                     Err(Error::with_pc(registers.pc, ErrorType::MissingData))
@@ -210,10 +220,22 @@ where
                     Ok(ExecutionResult::None)
                 }
             }
-            Opcode::CLC => todo!(),
-            Opcode::CLD => todo!(),
-            Opcode::CLI => todo!(),
-            Opcode::CLV => todo!(),
+            Opcode::CLC => {
+                registers.clear_flag(StatusBits::Carry);
+                Ok(ExecutionResult::None)
+            }
+            Opcode::CLD => {
+                registers.clear_flag(StatusBits::Dec);
+                Ok(ExecutionResult::None)
+            }
+            Opcode::CLI => {
+                registers.clear_flag(StatusBits::Int);
+                Ok(ExecutionResult::None)
+            }
+            Opcode::CLV => {
+                registers.clear_flag(StatusBits::Ovf);
+                Ok(ExecutionResult::None)
+            }
             Opcode::CMP => todo!(),
             Opcode::CPX => todo!(),
             Opcode::CPY => todo!(),
@@ -415,23 +437,26 @@ mod tests {
         let mut registers = Registers::new();
 
         let test_cases = vec![
-            // Acc, Data, Carry, Result, N, Z, C
-            (0x00, 0x00, false, 0x00, false, true, false),
-            (0x00, 0x01, false, 0x01, false, false, false),
-            (0xff, 0x01, false, 0x00, false, true, true),
-            (0x7f, 0x01, false, 0x80, true, false, false),
+            // Acc, Data, Carry, Result, N, Z, C, V
+            (0x00, 0x00, false, 0x00, false, true, false, false),
+            (0x00, 0x01, false, 0x01, false, false, false, false),
+            (0xff, 0x01, false, 0x00, false, true, true, false),
+            (0x7f, 0x01, false, 0x80, true, false, false, true),
+            (0x70, 0x70, false, 0xe0, true, false, false, true),
+            (0xff, 0x80, false, 0x7f, false, false, true, true),
         ];
 
-        for (acc, data, carry_in, expected_result, neg, zero, carry) in test_cases {
+        for (acc, data, carry_in, expected_result, neg, zero, carry, overflow) in test_cases {
             let case = format!(
-                "A:{} + D:{} + C:{} = {} {}{}{}",
+                "A:{} + D:{} + C:{} = {} {}{}{}{}",
                 acc,
                 data,
                 if carry_in { 1 } else { 0 },
                 expected_result,
                 if neg { "N" } else { "" },
                 if zero { "Z" } else { "" },
-                if carry { "C" } else { "" }
+                if carry { "C" } else { "" },
+                if overflow { "V" } else { "" },
             );
 
             registers.write_flag(StatusBits::Carry, carry_in);
@@ -444,6 +469,7 @@ mod tests {
             assert_eq!(registers.carry(), carry, "C: {}", case);
             assert_eq!(registers.zero(), zero, "Z: {}", case);
             assert_eq!(registers.negative(), neg, "N: {}", case);
+            assert_eq!(registers.overflow(), overflow, "V: {}", case);
         }
 
         Ok(())
@@ -858,6 +884,58 @@ mod tests {
             assert_eq!(result, expected_result, "{}", case);
         }
 
+        Ok(())
+    }
+
+    #[test]
+    fn clc() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(1);
+        let mut registers = Registers::new();
+
+        registers.write_flag(StatusBits::Carry, true);
+        let _ = execution_unit.execute(&Opcode::CLC, None, None, &mut memory, &mut registers)?;
+
+        assert!(!registers.carry(), "Carry should be clear");
+        Ok(())
+    }
+
+    #[test]
+    fn cld() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(1);
+        let mut registers = Registers::new();
+
+        registers.write_flag(StatusBits::Dec, true);
+        let _ = execution_unit.execute(&Opcode::CLD, None, None, &mut memory, &mut registers)?;
+
+        assert!(!registers.dec(), "Dec should be clear");
+        Ok(())
+    }
+
+    #[test]
+    fn cli() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(1);
+        let mut registers = Registers::new();
+
+        registers.write_flag(StatusBits::Int, true);
+        let _ = execution_unit.execute(&Opcode::CLI, None, None, &mut memory, &mut registers)?;
+
+        assert!(!registers.int(), "Int should be clear");
+        Ok(())
+    }
+    
+    #[test]
+    fn clv() -> Result<()> {
+        let execution_unit = super::ExecutionUnit::new();
+        let mut memory = Ram::new(1);
+        let mut registers = Registers::new();
+
+        registers.write_flag(StatusBits::Ovf, true);
+        let _ = execution_unit.execute(&Opcode::CLV, None, None, &mut memory, &mut registers)?;
+
+        assert!(!registers.overflow(), "Overflow should be clear");
         Ok(())
     }
 }
