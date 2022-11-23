@@ -262,7 +262,7 @@ where
             Opcode::ROR => todo!(),
             Opcode::RTI => todo!(),
             Opcode::RTS => todo!(),
-            Opcode::SBC => todo!(),
+            Opcode::SBC => todo!(), // take two's complement of data and ADC
             Opcode::SEC => todo!(),
             Opcode::SED => todo!(),
             Opcode::SEI => todo!(),
